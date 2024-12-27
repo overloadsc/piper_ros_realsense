@@ -198,6 +198,7 @@ class C_PiperRosNode():
         roll = self.piper.GetArmEndPoseMsgs().end_pose.RX_axis/1000
         pitch = self.piper.GetArmEndPoseMsgs().end_pose.RY_axis/1000
         yaw = self.piper.GetArmEndPoseMsgs().end_pose.RZ_axis/1000
+        # print(roll,pitch,yaw)
         roll = math.radians(roll)
         pitch = math.radians(pitch)
         yaw = math.radians(yaw)
@@ -294,7 +295,7 @@ class C_PiperRosNode():
         # rospy.loginfo("joint_4: %f", joint_data.position[4])
         # rospy.loginfo("joint_5: %f", joint_data.position[5])
         # rospy.loginfo("joint_6: %f", joint_data.position[6])
-        print(joint_data.position)
+        # print(joint_data.position)
         joint_0 = round(joint_data.position[0]*factor)
         joint_1 = round(joint_data.position[1]*factor)
         joint_2 = round(joint_data.position[2]*factor)

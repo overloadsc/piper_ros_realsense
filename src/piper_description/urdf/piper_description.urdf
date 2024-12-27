@@ -353,7 +353,7 @@
     <visual>
       <origin
         xyz="0 0 0"
-        rpy="0 0 0" />
+        rpy="0 0 1.5708" />
       <geometry>
         <mesh
           filename="package://piper_description/meshes/link6.dae" />
@@ -370,7 +370,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://piper_description/meshes/link6.STL" />
+          filename="package://piper_description/meshes/link6_1.STL" />
       </geometry>
     </collision>
   </link>
@@ -379,7 +379,7 @@
     type="revolute">
     <origin
       xyz="0 0.091 0.0014165"
-      rpy="-1.5708 -1.5708 0" />
+      rpy="-1.5708 -3.1415926 0" />
     <parent
       link="link5" />
     <child
@@ -437,7 +437,7 @@
     type="prismatic">
     <origin
       xyz="0 0 0.13503"
-      rpy="1.5708 0 1.5708" />
+      rpy="1.5708 0 3.1415926" />
     <parent
       link="link6" />
     <child
@@ -495,7 +495,7 @@
     type="prismatic">
     <origin
       xyz="0 0 0.13503"
-      rpy="-1.5708 0 1.5708" />
+      rpy="-1.5708 0 3.1415926" />
     <parent
       link="link6" />
     <child
