@@ -266,7 +266,7 @@ class C_PiperRosNode():
         rospy.loginfo("mode2: %d", pos_data.mode2)
         if(self.GetEnableFlag()):
             self.piper.MotionCtrl_1(0x00, 0x00, 0x00)
-            self.piper.MotionCtrl_2(0x01, 0x02, 50)
+            self.piper.MotionCtrl_2(0x01, 0x00, 50)
             self.piper.EndPoseCtrl(x, y, z, 
                                     rx, ry, rz)
             gripper = round(pos_data.gripper*1000*1000)
