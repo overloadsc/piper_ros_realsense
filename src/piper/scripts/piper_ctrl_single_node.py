@@ -302,7 +302,7 @@ class C_PiperRosNode():
         joint_3 = round(joint_data.position[3]*factor)
         joint_4 = round(joint_data.position[4]*factor)
         joint_5 = round(joint_data.position[5]*factor)
-        if(len(joint_data.position) == 7):
+        if(len(joint_data.position) >= 7):
             joint_6 = round(joint_data.position[6]*1000*1000)
             if(self.rviz_ctrl_flag):
                 joint_6 = joint_6 * 2
