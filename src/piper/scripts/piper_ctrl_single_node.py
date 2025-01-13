@@ -64,6 +64,7 @@ class C_PiperRosNode():
 
         self.joint_pub = rospy.Publisher('joint_states_single', JointState, queue_size=1)
         self.arm_status_pub = rospy.Publisher('arm_status', PiperStatusMsg, queue_size=1)
+        self.end_pose_euler_pub = rospy.Publisher('end_pose_euler', PosCmd, queue_size=1)
         self.end_pose_pub = rospy.Publisher('end_pose', Pose, queue_size=1)
         self.enable_service = rospy.Service('enable_srv', Enable, self.handle_enable_service)  # 创建服务
         
@@ -208,6 +209,18 @@ class C_PiperRosNode():
         endpos.orientation.z = quaternion[2]
         endpos.orientation.w = quaternion[3]
         self.end_pose_pub.publish(endpos)
+        
+        end_pose_euler = PosCmd()
+        end_pose_euler.x = self.piper.GetArmEndPoseMsgs().end_pose.X_axis/1000000
+        end_pose_euler.y = self.piper.GetArmEndPoseMsgs().end_pose.Y_axis/1000000
+        end_pose_euler.z = self.piper.GetArmEndPoseMsgs().end_pose.Z_axis/1000000
+        end_pose_euler.roll = roll
+        end_pose_euler.pitch = pitch
+        end_pose_euler.yaw = yaw
+        end_pose_euler.gripper = 0
+        end_pose_euler.mode1 = 0
+        end_pose_euler.mode2 = 0
+        self.end_pose_euler_pub.publish(end_pose_euler)
     
     def SubPosThread(self):
         """机械臂末端位姿订阅
