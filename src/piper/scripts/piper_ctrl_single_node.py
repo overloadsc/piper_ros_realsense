@@ -226,14 +226,14 @@ class C_PiperRosNode():
         """机械臂末端位姿订阅
         
         """
-        rospy.Subscriber('pos_cmd', PosCmd, self.pos_callback)
+        rospy.Subscriber('pos_cmd', PosCmd, self.pos_callback, queue_size=1, tcp_nodelay=True)
         rospy.spin()
     
     def SubJointThread(self):
         """机械臂关节订阅
         
         """
-        rospy.Subscriber('joint_ctrl_single', JointState, self.joint_callback)
+        rospy.Subscriber('joint_ctrl_single', JointState, self.joint_callback, queue_size=1, tcp_nodelay=True)
         # rospy.Subscriber('/move_group/fake_controller_joint_states', JointState, self.joint_callback)
         rospy.spin()
     
@@ -241,7 +241,7 @@ class C_PiperRosNode():
         """机械臂使能
         
         """
-        rospy.Subscriber('enable_flag', Bool, self.enable_callback)
+        rospy.Subscriber('enable_flag', Bool, self.enable_callback, queue_size=1, tcp_nodelay=True)
         rospy.spin()
 
     def pos_callback(self, pos_data):
@@ -428,20 +428,6 @@ class C_PiperRosNode():
         response = enable_flag
         rospy.loginfo(f"Returning response: {response}")
         return EnableResponse(response)
-
-    def easeInOutQuad(self, t: float) -> float:
-        """
-        Eases in and out using a quadratic function.
-        
-        Args:
-            t (float): A float between 0 and 1 representing the interpolation progress.
-
-        Returns:
-            float: The eased value.
-        """
-        if t < 0.5:
-            return 2 * t * t
-        return -1 + (4 - 2 * t) * t
 
 if __name__ == '__main__':
     try:
