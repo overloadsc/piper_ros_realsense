@@ -16,7 +16,7 @@ from piper_sdk import *
 from piper_sdk import C_PiperInterface
 from piper_msgs.msg import PiperStatusMsg, PosCmd
 from piper_msgs.srv import Enable, EnableResponse
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, PoseStamped
 from tf.transformations import quaternion_from_euler  # 用于欧拉角到四元数的转换
 import numpy as np
 
@@ -65,7 +65,7 @@ class C_PiperRosNode():
         self.joint_pub = rospy.Publisher('joint_states_single', JointState, queue_size=1)
         self.arm_status_pub = rospy.Publisher('arm_status', PiperStatusMsg, queue_size=1)
         self.end_pose_euler_pub = rospy.Publisher('end_pose_euler', PosCmd, queue_size=1)
-        self.end_pose_pub = rospy.Publisher('end_pose', Pose, queue_size=1)
+        self.end_pose_pub = rospy.Publisher('end_pose', PoseStamped, queue_size=1)
         self.enable_service = rospy.Service('enable_srv', Enable, self.handle_enable_service)  # 创建服务
         
         self.__enable_flag = False
@@ -192,22 +192,22 @@ class C_PiperRosNode():
     
     def PublishArmEndPose(self):
         # 末端位姿
-        endpos = Pose()
-        endpos.position.x = self.piper.GetArmEndPoseMsgs().end_pose.X_axis/1000000
-        endpos.position.y = self.piper.GetArmEndPoseMsgs().end_pose.Y_axis/1000000
-        endpos.position.z = self.piper.GetArmEndPoseMsgs().end_pose.Z_axis/1000000
+        endpos = PoseStamped()
+        endpos.pose.position.x = self.piper.GetArmEndPoseMsgs().end_pose.X_axis/1000000
+        endpos.pose.position.y = self.piper.GetArmEndPoseMsgs().end_pose.Y_axis/1000000
+        endpos.pose.position.z = self.piper.GetArmEndPoseMsgs().end_pose.Z_axis/1000000
         roll = self.piper.GetArmEndPoseMsgs().end_pose.RX_axis/1000
         pitch = self.piper.GetArmEndPoseMsgs().end_pose.RY_axis/1000
         yaw = self.piper.GetArmEndPoseMsgs().end_pose.RZ_axis/1000
-        # print(roll,pitch,yaw)
         roll = math.radians(roll)
         pitch = math.radians(pitch)
         yaw = math.radians(yaw)
         quaternion = quaternion_from_euler(roll, pitch, yaw)
-        endpos.orientation.x = quaternion[0]
-        endpos.orientation.y = quaternion[1]
-        endpos.orientation.z = quaternion[2]
-        endpos.orientation.w = quaternion[3]
+        endpos.pose.orientation.x = quaternion[0]
+        endpos.pose.orientation.y = quaternion[1]
+        endpos.pose.orientation.z = quaternion[2]
+        endpos.pose.orientation.w = quaternion[3]
+        endpos.header.stamp = rospy.Time.now()
         self.end_pose_pub.publish(endpos)
         
         end_pose_euler = PosCmd()
@@ -217,7 +217,10 @@ class C_PiperRosNode():
         end_pose_euler.roll = roll
         end_pose_euler.pitch = pitch
         end_pose_euler.yaw = yaw
-        end_pose_euler.gripper = 0
+        if(self.girpper_exist):
+            end_pose_euler.gripper = self.piper.GetArmGripperMsgs().gripper_state.grippers_angle/1000000
+        else:
+            end_pose_euler.gripper = -1
         end_pose_euler.mode1 = 0
         end_pose_euler.mode2 = 0
         self.end_pose_euler_pub.publish(end_pose_euler)
