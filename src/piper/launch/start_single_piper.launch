@@ -7,7 +7,7 @@
     <param name="can_port" value="$(arg can_port)" />
     <param name="auto_enable" value="$(arg auto_enable)" />
     <param name="rviz_ctrl_flag" value="true" />
-    <param name="girpper_exist" value="false" />
+    <param name="girpper_exist" value="true" />
     <remap from="joint_ctrl_single" to="/joint_states" />
   </node>
 </launch>
