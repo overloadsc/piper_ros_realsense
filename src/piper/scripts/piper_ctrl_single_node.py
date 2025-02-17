@@ -353,6 +353,8 @@ class C_PiperRosNode():
                                     joint_3, joint_4, joint_5)
             # 如果末端夹爪存在，则发送末端夹爪控制
             if(self.girpper_exist):
+                if abs(joint_6)<200:
+                    joint_6=0
                 if(len(joint_data.effort) >= 7):
                     gripper_effort = joint_data.effort[6]
                     if (gripper_effort > 3): gripper_effort = 3
