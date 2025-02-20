@@ -16,6 +16,7 @@ from piper_sdk import *
 from piper_sdk import C_PiperInterface
 from piper_msgs.msg import PiperStatusMsg, PosCmd
 from piper_msgs.srv import Enable, EnableResponse
+from piper_msgs.srv import Gripper, GripperResponse
 from geometry_msgs.msg import Pose, PoseStamped
 from tf.transformations import quaternion_from_euler  # 用于欧拉角到四元数的转换
 import numpy as np
@@ -50,25 +51,45 @@ class C_PiperRosNode():
                 self.auto_enable = True
         rospy.loginfo("%s is %s", rospy.resolve_name('~auto_enable'), self.auto_enable)
         # 是否有夹爪，默认为有
-        self.girpper_exist = True
-        if rospy.has_param('~girpper_exist'):
-            if(not rospy.get_param("~girpper_exist")):
-                self.girpper_exist = False
-        rospy.loginfo("%s is %s", rospy.resolve_name('~girpper_exist'), self.girpper_exist)
-        # 是否是打开了rviz控制，默认为不是，如果打开了，gripper订阅的joint7关节消息会乘2倍
+        self.gripper_exist = True
+        if rospy.has_param('~gripper_exist'):
+            if(not rospy.get_param("~gripper_exist")):
+                self.gripper_exist = False
+        rospy.loginfo("%s is %s", rospy.resolve_name('~gripper_exist'), self.gripper_exist)
+        # 是否是打开了rviz控制，默认为不是，如果打开了，gripper订阅的joint7关节消息会乘2倍-------已弃用
         self.rviz_ctrl_flag = False
         if rospy.has_param('~rviz_ctrl_flag'):
             if(rospy.get_param("~rviz_ctrl_flag")):
                 self.rviz_ctrl_flag = True
         rospy.loginfo("%s is %s", rospy.resolve_name('~rviz_ctrl_flag'), self.rviz_ctrl_flag)
-
+        # 夹爪的数值倍数，默认为1
+        self.gripper_val_mutiple = 1  # 默认值
+        if rospy.has_param('~gripper_val_mutiple'):
+            gripper_val_mutiple = rospy.get_param("~gripper_val_mutiple")
+            # 检查是否为数字（浮动数或整数）
+            if isinstance(gripper_val_mutiple, (int, float)):
+                # 确保值在合理范围内
+                if gripper_val_mutiple <= 0:
+                    rospy.logwarn("Invalid gripper_val_mutiple value: must be positive. Using default value of 1.")
+                    self.gripper_val_mutiple = 1  # 设置为默认值
+                else:
+                    self.gripper_val_mutiple = gripper_val_mutiple
+            else:
+                rospy.logwarn("Invalid gripper_val_mutiple type. Expected int or float. Using default value of 1.")
+                self.gripper_val_mutiple = 1  # 设置为默认值
+        else:
+            rospy.logwarn("No gripper_val_mutiple param. Using default value of 1.")
+            self.gripper_val_mutiple = 1  # 设置为默认值
+        rospy.loginfo("%s is %s", rospy.resolve_name('~gripper_val_mutiple'), self.gripper_val_mutiple)
+        # publish
         self.joint_pub = rospy.Publisher('joint_states_single', JointState, queue_size=1)
         self.arm_status_pub = rospy.Publisher('arm_status', PiperStatusMsg, queue_size=1)
         self.end_pose_euler_pub = rospy.Publisher('end_pose_euler', PosCmd, queue_size=1)
         self.end_pose_pub = rospy.Publisher('end_pose', PoseStamped, queue_size=1)
+        # service
         self.enable_service = rospy.Service('enable_srv', Enable, self.handle_enable_service)  # 创建服务
-        
         self.__enable_flag = False
+        self.gripper_service = rospy.Service('gripper_srv', Gripper, self.handle_gripper_service)  # 创建服务
         # joint
         self.joint_states = JointState()
         self.joint_states.name = ['joint0', 'joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6']
@@ -217,7 +238,7 @@ class C_PiperRosNode():
         end_pose_euler.roll = roll
         end_pose_euler.pitch = pitch
         end_pose_euler.yaw = yaw
-        if(self.girpper_exist):
+        if(self.gripper_exist):
             end_pose_euler.gripper = self.piper.GetArmGripperMsgs().gripper_state.grippers_angle/1000000
         else:
             end_pose_euler.gripper = -1
@@ -288,7 +309,7 @@ class C_PiperRosNode():
             gripper = round(pos_data.gripper*1000*1000)
             if(pos_data.gripper>80000): gripper = 80000
             if(pos_data.gripper<0): gripper = 0
-            if(self.girpper_exist):
+            if(self.gripper_exist):
                 self.piper.GripperCtrl(abs(gripper), 1000, 0x01, 0)
             self.piper.MotionCtrl_2(0x01, 0x00, 50)
     
@@ -298,11 +319,8 @@ class C_PiperRosNode():
         Args:
             joint_data (): 
         """
-        a = time.time()
-        steps = 50
         factor = 57324.840764 #1000*180/3.14
         factor = 1000 * 180 / np.pi
-        factor1 = 57.32484
         # rospy.loginfo("Received Joint States:")
         # rospy.loginfo("joint_0: %f", joint_data.position[0])
         # rospy.loginfo("joint_1: %f", joint_data.position[1])
@@ -320,11 +338,10 @@ class C_PiperRosNode():
         joint_5 = round(joint_data.position[5]*factor)
         if(len(joint_data.position) >= 7):
             joint_6 = round(joint_data.position[6]*1000*1000)
-            if(self.rviz_ctrl_flag):
-                joint_6 = joint_6 * 2
+            joint_6 = joint_6 * self.gripper_val_mutiple
             if(joint_6>80000): joint_6 = 80000
             if(joint_6<0): joint_6 = 0
-        else: joint_6 = 0
+        else: joint_6 = None
         if(self.GetEnableFlag()):
             # 设定电机速度
             if(joint_data.velocity != []):
@@ -352,20 +369,17 @@ class C_PiperRosNode():
             self.piper.JointCtrl(joint_0, joint_1, joint_2, 
                                     joint_3, joint_4, joint_5)
             # 如果末端夹爪存在，则发送末端夹爪控制
-            if(self.girpper_exist):
+            if(self.gripper_exist and joint_6 is not None):
                 if abs(joint_6)<200:
                     joint_6=0
                 if(len(joint_data.effort) >= 7):
                     gripper_effort = joint_data.effort[6]
-                    if (gripper_effort > 3): gripper_effort = 3
-                    if (gripper_effort < 0.5): gripper_effort = 0.5
+                    gripper_effort = max(0.5, min(gripper_effort, 3))
                     # rospy.loginfo("gripper_effort: %f", gripper_effort)
                     gripper_effort = round(gripper_effort*1000)
                     self.piper.GripperCtrl(abs(joint_6), gripper_effort, 0x01, 0)
                 # 默认1N
                 else: self.piper.GripperCtrl(abs(joint_6), 1000, 0x01, 0)
-            b = time.time()
-            # print(b -a )
     
     def enable_callback(self, enable_flag:Bool):
         """机械臂使能回调函数
@@ -378,13 +392,49 @@ class C_PiperRosNode():
         if(enable_flag.data):
             self.__enable_flag = True
             self.piper.EnableArm(7)
-            if(self.girpper_exist):
+            if(self.gripper_exist):
                 self.piper.GripperCtrl(0,1000,0x01, 0)
         else:
             self.__enable_flag = False
             self.piper.DisableArm(7)
-            if(self.girpper_exist):
+            if(self.gripper_exist):
                 self.piper.GripperCtrl(0,1000,0x00, 0)
+    
+    def handle_gripper_service(self,req):
+        response = GripperResponse()
+        response.error_code = 15999
+        response.status = False
+        if(self.gripper_exist):
+            rospy.loginfo(f"-----------------------Gripper---------------------------")
+            rospy.loginfo(f"Received request:")
+            rospy.loginfo(f"gripper_angle:{req.gripper_angle}, range is [0m, 0.07m]")
+            rospy.loginfo(f"gripper_effort:{req.gripper_effort},range is [0.5N/m, 2N/m]")
+            rospy.loginfo(f"gripper_code:{req.gripper_code}, range is [0, 1, 2, 3]")
+            rospy.loginfo(f"set_zero:{req.set_zero}, range is [0, 0xAE]")
+            rospy.loginfo(f"-----------------------Gripper---------------------------")
+            gripper_angle = req.gripper_angle
+            gripper_angle = round(max(0, min(req.gripper_angle, 0.07)) * 1e6)
+            gripper_effort = req.gripper_effort
+            gripper_effort = round(max(0.5, min(req.gripper_effort, 2)) * 1e3)
+            if req.gripper_code not in [0x00, 0x01, 0x02, 0x03]:
+                rospy.logwarn("gripper_code should be in [0, 1, 2, 3], default val is 1")
+                gripper_code = 1
+                response.error_code = 15901
+            else: gripper_code = req.gripper_code
+            if req.set_zero not in [0x00, 0xAE]:
+                rospy.logwarn("set_zero should be in [0, 0xAE], default val is 0")
+                set_zero = 0
+                response.error_code = 15902
+            else: set_zero = req.set_zero
+            response.error_code = 15900
+            self.piper.GripperCtrl(abs(gripper_angle), gripper_effort, gripper_code, set_zero)
+            response.status = True
+        else:
+            rospy.logwarn("gripper_exist param is False.")
+            response.error_code = 15903
+            response.status = False
+        rospy.loginfo(f"Returning GripperResponse: {response.error_code}, {response.status}")
+        return response
     
     def handle_enable_service(self,req):
         rospy.loginfo(f"Received request: {req.enable_request}")
