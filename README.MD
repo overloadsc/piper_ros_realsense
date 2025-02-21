@@ -99,12 +99,14 @@ rviz_ctrl_flag:是否使用rviz来发送关节角消息，True则接收rviz发�
 <launch>
   <arg name="can_port" default="can0" />
   <arg name="auto_enable" default="true" />
+  <arg name="gripper_val_mutiple" default="1" />
   <!-- <include file="$(find piper_description)/launch/display_xacro.launch"/> -->
   <!-- 启动机械臂节点 -->
   <node name="piper_ctrl_single_node" pkg="piper" type="piper_ctrl_single_node.py" output="screen">
     <param name="can_port" value="$(arg can_port)" />
     <param name="auto_enable" value="$(arg auto_enable)" />
-    <param name="rviz_ctrl_flag" value="true" />
+    <param name="gripper_val_mutiple" value="$(arg gripper_val_mutiple)" />
+    <!-- <param name="rviz_ctrl_flag" value="true" /> -->
     <param name="girpper_exist" value="true" />
     <remap from="joint_ctrl_single" to="/joint_states" />
   </node>
@@ -117,12 +119,13 @@ rviz_ctrl_flag:是否使用rviz来发送关节角消息，True则接收rviz发�
 <launch>
   <arg name="can_port" default="can0" />
   <arg name="auto_enable" default="true" />
-  <include file="$(find piper_description)/launch/display_xacro.launch"/>
+  <include file="$(find piper_description)/launch/piper_with_gripper/display_xacro.launch"/>
   <!-- 启动机械臂节点 -->
   <node name="piper_ctrl_single_node" pkg="piper" type="piper_ctrl_single_node.py" output="screen">
     <param name="can_port" value="$(arg can_port)" />
     <param name="auto_enable" value="$(arg auto_enable)" />
-    <param name="rviz_ctrl_flag" value="true" />
+    <param name="gripper_val_mutiple" value="2" />
+    <!-- <param name="rviz_ctrl_flag" value="true" /> -->
     <param name="girpper_exist" value="true" />
     <remap from="joint_ctrl_single" to="/joint_states" />
   </node>
