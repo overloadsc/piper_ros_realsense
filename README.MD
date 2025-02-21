@@ -8,45 +8,17 @@
 |---|---|
 |![ros](https://img.shields.io/badge/ROS-noetic-blue.svg)|![Pass](https://img.shields.io/badge/Pass-blue.svg)|
 
-## 注意URDF版本(以零点区分)
+## 0 注意URDF版本(以零点区分)
 
 若您的机械臂，上电后使用上位机使能回零，j2和j3关节抬起了2度的角度，则为v00版零点，如下图:
 
 ![ ](./asserts/pictures/piper_zero.png)
 
-旧版本零点以j2和j3的限位位置偏移2度得到，参照下述文件
+旧版本零点以j2和j3的限位位置偏移2度得到，现URDF中的文件都是接触限位处
 
-带夹爪:
+## 1 安装方法
 
-urdf描述文件和xacro描述文件：
-
-`piper_description_v00.urdf`、`piper_description_v00.xacro`
-
-查看：
-
-将`src/piper_description/launch/piper_with_gripper/display_urdf.launch`文件内`piper_description.urdf`改为`piper_description_v00.urdf`
-
-执行：`roslaunch piper_description display_urdf.launch`
-
-![ ](./asserts/pictures/piper_urdf_zero.png)
-
-不带夹爪:
-
-urdf描述文件和xacro描述文件：
-
-`piper_no_gripper_description_v00.urdf`、`piper_no_gripper_description_v00.xacro`
-
-查看：
-
-`src/piper_description/launch/piper_no_gripper/display_no_gripper_urdf.launch`文件内`piper_no_gripper_description.urdf`改为`piper_no_gripper_description_v00.urdf`
-
-执行：`roslaunch piper_description display_no_gripper_urdf.launch`
-
-![ ](./asserts/pictures/piper_urdf_no_gripper_zero.png)
-
-## 安装方法
-
-### 安装依赖
+### 1.1 安装依赖
 
 ```shell
 pip3 install python-can
@@ -56,15 +28,15 @@ pip3 install python-can
 pip3 install piper_sdk
 ```
 
-## 快速使用
+## 2 快速使用
 
-### 使能can模块
+### 2.2 使能can模块
 
 首先需要设置好shell脚本参数
 
-#### 单条机械臂
+#### 2.2.1 单条机械臂
 
-##### pc只插入一个usb转can模块
+##### 1）pc只插入一个usb转can模块
 
 - **此处使用`can_activate.sh`脚本**
 
@@ -74,7 +46,7 @@ pip3 install piper_sdk
 bash can_activate.sh can0 1000000
 ```
 
-##### pc插入多个usb转can模块
+##### 2）pc插入多个usb转can模块
 
 - **此处使用`can_activate.sh`脚本**
 
@@ -102,9 +74,9 @@ ps:**此处的意思是，1-2:1.0硬件编码的usb端口插入的can设备，�
 
 然后执行`ifconfig`查看是否有`can_piper`，如果有则can模块设置成功
 
-### 运行节点
+### 2.3 运行节点
 
-#### 单个机械臂
+#### 2.3.1 单机械臂
 
 节点名`piper_ctrl_single_node.py`
 
@@ -119,24 +91,6 @@ auto_enable:是否自动使能，True则开启程序就自动使能
 girpper_exist:是否有末端夹爪，True则说明有末端夹爪，会开启夹爪控制
 rviz_ctrl_flag:是否使用rviz来发送关节角消息，True则接收rviz发送的关节角消息
 #由于rviz中的joint7范围是[0,0.04]，而真实夹爪行程为0.08m，打开rviz控制后会将rviz发出的joint7乘2倍
-```
-
-`start_single_piper_rviz.launch`如下:
-
-```xml
-<launch>
-  <arg name="can_port" default="can0" />
-  <arg name="auto_enable" default="true" />
-  <include file="$(find piper_description)/launch/display_xacro.launch"/>
-  <!-- 启动机械臂节点 -->
-  <node name="piper_ctrl_single_node" pkg="piper" type="piper_ctrl_single_node.py" output="screen">
-    <param name="can_port" value="$(arg can_port)" />
-    <param name="auto_enable" value="$(arg auto_enable)" />
-    <param name="rviz_ctrl_flag" value="true" />
-    <param name="girpper_exist" value="true" />
-    <remap from="joint_ctrl_single" to="/joint_states" />
-  </node>
-</launch>
 ```
 
 `start_single_piper.launch`如下:
@@ -157,7 +111,25 @@ rviz_ctrl_flag:是否使用rviz来发送关节角消息，True则接收rviz发�
 </launch>
 ```
 
-启动控制节点
+`start_single_piper_rviz.launch`如下:
+
+```xml
+<launch>
+  <arg name="can_port" default="can0" />
+  <arg name="auto_enable" default="true" />
+  <include file="$(find piper_description)/launch/display_xacro.launch"/>
+  <!-- 启动机械臂节点 -->
+  <node name="piper_ctrl_single_node" pkg="piper" type="piper_ctrl_single_node.py" output="screen">
+    <param name="can_port" value="$(arg can_port)" />
+    <param name="auto_enable" value="$(arg auto_enable)" />
+    <param name="rviz_ctrl_flag" value="true" />
+    <param name="girpper_exist" value="true" />
+    <remap from="joint_ctrl_single" to="/joint_states" />
+  </node>
+</launch>
+```
+
+##### （1）启动控制节点
 
 ```shell
 # 启动节点
@@ -188,9 +160,12 @@ rosservice list
 
 ```shell
 /enable_srv #机械臂使能服务端
+/gripper_srv #机械臂夹爪控制服务
+/reset_srv #机械臂重置服务
+/stop_srv #机械臂停止服务
 ```
 
-使能机械臂
+##### （2）使能机械臂
 
 ```shell
 # call 服务端
@@ -199,7 +174,7 @@ rosservice call /enable_srv "enable_request: true"
 rostopic pub /enable_flag std_msgs/Bool "data: true"
 ```
 
-失能机械臂
+##### （3）失能机械臂
 
 ```shell
 # call 服务端
@@ -208,7 +183,7 @@ rosservice call /enable_srv "enable_request: false"
 rostopic pub /enable_flag std_msgs/Bool "data: false"
 ```
 
-发布关节消息
+##### （4）发布关节消息
 
 注意，机械臂会抬起，请确保机械臂工作范围内无障碍
 
@@ -223,22 +198,19 @@ velocity: [0,0,0,0,0,0,10]
 effort: [0,0,0,0,0,0,0.5]" 
 ```
 
-## 注意事项
+##### （5）停止机械臂，注意机械臂会以一个恒定阻尼落下
 
-- 需要先激活can设备，并且设置正确的波特率，才可以读取机械臂消息或者控制机械臂
-- 如果出现
+```shell
+rosservice call /stop_srv
+```
 
-  ```shell
-  使能状态: False
-  <class 'can.exceptions.CanError'> Message NOT sent
-  <class 'can.exceptions.CanError'> Message NOT sent
-  ```
+##### （6）重置机械臂，注意机械臂会立刻掉电落下
 
-  说明机械臂没有与can模块连同，拔插usb后，重新启动机械臂，再激活can模块，然后尝试重新启动节点
+```shell
+rosservice call /reset_srv
+```
 
-- 如果打开了自动使能，尝试使能5s没有成功后，会自动退出程序
-
-### piper自定义消息
+### 2.4 piper自定义消息
 
 ros功能包`piper_msgs`
 
@@ -318,20 +290,38 @@ bool communication_status_joint_6//6号关节角度超限位（0：正常 1：�
 `PosCmd.msg`
 
 ```c
+// 单位：m
 float64 x
 float64 y
 float64 z
+// 单位：rad
 float64 roll
 float64 pitch
 float64 yaw
 float64 gripper
-int32 mode1//暂时无用
-int32 mode2//暂时无用
+// 暂为无效参数
+int32 mode1
+int32 mode2
 ```
 
-## 使用仿真
+## 3 注意事项
 
-### rviz
+- 需要先激活can设备，并且设置正确的波特率，才可以读取机械臂消息或者控制机械臂
+- 如果出现
+
+  ```shell
+  使能状态: False
+  <class 'can.exceptions.CanError'> Message NOT sent
+  <class 'can.exceptions.CanError'> Message NOT sent
+  ```
+
+  说明机械臂没有与can模块连同，拔插usb后，重新启动机械臂，再激活can模块，然后尝试重新启动节点
+
+- 如果打开了自动使能，尝试使能5s没有成功后，会自动退出程序
+
+## 4 使用仿真
+
+### 4.1 rviz
 
 `display_xacro.launch` 打开rviz
 
@@ -353,7 +343,7 @@ roslaunch piper_description display_xacro.launch
 
 ![ ](./asserts/pictures/piper_rviz.png)
 
-### gazebo
+### 4.2 gazebo
 
 执行
 
@@ -390,7 +380,7 @@ roslaunch piper_description gazebo_xacro.launch
 |joint3    | [-2.697,0]|
 |joint4    | [-1.832,1.832]|
 |joint5    | [-1.22,1.22]|
-|joint6    | [-3.14,3.14]|
+|joint6    | [-2.0944,2.0944]|
 |joint7    | [0,0.038]|
 |joint8    | [-0.038,0]|
 

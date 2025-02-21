@@ -14,6 +14,7 @@ import argparse
 import math
 from piper_sdk import *
 from piper_sdk import C_PiperInterface
+from std_srvs.srv import Trigger, TriggerResponse
 from piper_msgs.msg import PiperStatusMsg, PosCmd
 from piper_msgs.srv import Enable, EnableResponse
 from piper_msgs.srv import Gripper, GripperResponse
@@ -87,9 +88,11 @@ class C_PiperRosNode():
         self.end_pose_euler_pub = rospy.Publisher('end_pose_euler', PosCmd, queue_size=1)
         self.end_pose_pub = rospy.Publisher('end_pose', PoseStamped, queue_size=1)
         # service
-        self.enable_service = rospy.Service('enable_srv', Enable, self.handle_enable_service)  # 创建服务
+        self.enable_service = rospy.Service('enable_srv', Enable, self.handle_enable_service)  # 创建enable服务
         self.__enable_flag = False
-        self.gripper_service = rospy.Service('gripper_srv', Gripper, self.handle_gripper_service)  # 创建服务
+        self.gripper_service = rospy.Service('gripper_srv', Gripper, self.handle_gripper_service)  # 创建gripper服务
+        self.stop_service = rospy.Service('stop_srv', Trigger, self.handle_stop_service)  # 创建stop服务
+        self.reset_service = rospy.Service('reset_srv', Trigger, self.handle_reset_service)  # 创建reset服务
         # joint
         self.joint_states = JointState()
         self.joint_states.name = ['joint0', 'joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6']
@@ -407,10 +410,16 @@ class C_PiperRosNode():
         if(self.gripper_exist):
             rospy.loginfo(f"-----------------------Gripper---------------------------")
             rospy.loginfo(f"Received request:")
+            rospy.loginfo(f"PS: Piper should be enable.Please ensure piper is enable")
             rospy.loginfo(f"gripper_angle:{req.gripper_angle}, range is [0m, 0.07m]")
             rospy.loginfo(f"gripper_effort:{req.gripper_effort},range is [0.5N/m, 2N/m]")
-            rospy.loginfo(f"gripper_code:{req.gripper_code}, range is [0, 1, 2, 3]")
-            rospy.loginfo(f"set_zero:{req.set_zero}, range is [0, 0xAE]")
+            rospy.loginfo(f"gripper_code:{req.gripper_code}, range is [0, 1, 2, 3]\n \
+                            0x00: Disable\n \
+                            0x01: Enable\n \
+                            0x03/0x02: Enable and clear error / Disable and clear error")
+            rospy.loginfo(f"set_zero:{req.set_zero}, range is [0, 0xAE] \n \
+                            0x00: Invalid value \n \
+                            0xAE: Set zero point")
             rospy.loginfo(f"-----------------------Gripper---------------------------")
             gripper_angle = req.gripper_angle
             gripper_angle = round(max(0, min(req.gripper_angle, 0.07)) * 1e6)
@@ -483,6 +492,32 @@ class C_PiperRosNode():
         response = enable_flag
         rospy.loginfo(f"Returning response: {response}")
         return EnableResponse(response)
+
+    def handle_stop_service(self,req):
+        response = TriggerResponse()
+        response.success = False
+        response.message = "stop piper failed"
+        rospy.loginfo(f"-----------------------STOP---------------------------")
+        rospy.loginfo(f"Stop piper.")
+        rospy.loginfo(f"-----------------------STOP---------------------------")
+        self.piper.MotionCtrl_1(0x01,0,0)
+        response.success = True
+        response.message = "stop piper success"
+        rospy.loginfo(f"Returning StopResponse: {response.success}, {response.message}")
+        return response
+
+    def handle_reset_service(self,req):
+        response = TriggerResponse()
+        response.success = False
+        response.message = "reset piper failed"
+        rospy.loginfo(f"-----------------------RESET---------------------------")
+        rospy.loginfo(f"reset piper.")
+        rospy.loginfo(f"-----------------------RESET---------------------------")
+        self.piper.MotionCtrl_1(0x02,0,0)#恢复
+        response.success = True
+        response.message = "reset piper success"
+        rospy.loginfo(f"Returning resetResponse: {response.success}, {response.message}")
+        return response
 
 if __name__ == '__main__':
     try:

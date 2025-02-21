@@ -317,7 +317,7 @@ These command topics are used to control the movement of the robotic arm in Gaze
 | joint3     | [-2.697,0]     |
 | joint4     | [-1.832,1.832] |
 | joint5     | [-1.22,1.22]   |
-| joint6     | [-3.14,3.14]   |
+| joint6     | [-2.0944,2.0944]   |
 | joint7     | [0,0.038]      |
 | joint8     | [-0.038,0]     |
 
