@@ -131,15 +131,17 @@ rviz_ctrl_flag:是否使用rviz来发送关节角消息，True则接收rviz发�
 
 ##### （1）启动控制节点
 
+提供几种不同的启动方式，启动的都是相同节点
+
 ```shell
 # 启动节点
 roscore
 rosrun piper piper_ctrl_single_node.py _can_port:=can0 _mode:=0
-# 启动launch
+# 或，使用launch 启动节点
 roslaunch piper start_single_piper.launch can_port:=can0 auto_enable:=true
-# 或，会以默认参数运行
+# 或，直接运行launch，会以默认参数运行
 roslaunch piper start_single_piper.launch
-# 也可以用rviz开启控制,需要更改的参数如上
+# 也可以用rviz开启控制,需要更改的参数如上述
 roslaunch piper start_single_piper_rviz.launch
 ```
 
@@ -157,7 +159,7 @@ roslaunch piper start_single_piper_rviz.launch
 /pos_cmd #末端控制消息
 ```
 
-rosservice list
+`rosservice list`
 
 ```shell
 /enable_srv #机械臂使能服务端
