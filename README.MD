@@ -150,7 +150,8 @@ roslaunch piper start_single_piper_rviz.launch
 ```shell
 /arm_status #机械臂状态，详见下文
 /enable_flag #使能标志位，发送给节点，发送true用来使能
-/end_pose #机械臂末端位姿状态反馈
+/end_pose #机械臂末端位姿状态反馈，四元数
+/end_pose_euler #机械臂末端位姿状态反馈，欧拉角(为自定义消息)
 /joint_states #订阅关节消息，给这个消息发送关节位置能控制机械臂运动
 /joint_states_single #机械臂关节状态反馈
 /pos_cmd #末端控制消息
