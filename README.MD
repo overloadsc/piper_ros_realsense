@@ -166,6 +166,7 @@ roslaunch piper start_single_piper_rviz.launch
 
 ```shell
 /enable_srv #机械臂使能服务端
+/go_zero_srv #机械臂归零服务
 /gripper_srv #机械臂夹爪控制服务
 /reset_srv #机械臂重置服务
 /stop_srv #机械臂停止服务
@@ -214,6 +215,16 @@ rosservice call /stop_srv
 
 ```shell
 rosservice call /reset_srv
+```
+
+##### （7）令机械臂归零
+
+- 如果机械臂为mit模式，将`is_mit_mode`置为`true`
+- 如果机械臂不为mit模式(位置速度控制模式)，将`is_mit_mode`置为`false`
+
+```shell
+rosservice call /go_zero_srv "is_mit_mode: false"
+rosservice call /go_zero_srv "is_mit_mode: true"
 ```
 
 ### 2.4 piper自定义消息
