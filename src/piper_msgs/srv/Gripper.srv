@@ -3,5 +3,5 @@ float64 gripper_effort
 int64 gripper_code
 int64 set_zero
 ---
-int64 error_code
+int64 code
 bool status  # 响应消息类型为bool

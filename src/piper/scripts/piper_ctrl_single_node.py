@@ -18,6 +18,7 @@ from std_srvs.srv import Trigger, TriggerResponse
 from piper_msgs.msg import PiperStatusMsg, PosCmd
 from piper_msgs.srv import Enable, EnableResponse
 from piper_msgs.srv import Gripper, GripperResponse
+from piper_msgs.srv import GoZero, GoZeroResponse
 from geometry_msgs.msg import Pose, PoseStamped
 from tf.transformations import quaternion_from_euler  # 用于欧拉角到四元数的转换
 import numpy as np
@@ -93,6 +94,7 @@ class C_PiperRosNode():
         self.gripper_service = rospy.Service('gripper_srv', Gripper, self.handle_gripper_service)  # 创建gripper服务
         self.stop_service = rospy.Service('stop_srv', Trigger, self.handle_stop_service)  # 创建stop服务
         self.reset_service = rospy.Service('reset_srv', Trigger, self.handle_reset_service)  # 创建reset服务
+        self.go_zero_service = rospy.Service('go_zero_srv', GoZero, self.handle_go_zero_service)  # 创建reset服务
         # joint
         self.joint_states = JointState()
         self.joint_states.name = ['joint0', 'joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6']
@@ -405,7 +407,7 @@ class C_PiperRosNode():
     
     def handle_gripper_service(self,req):
         response = GripperResponse()
-        response.error_code = 15999
+        response.code = 15999
         response.status = False
         if(self.gripper_exist):
             rospy.loginfo(f"-----------------------Gripper---------------------------")
@@ -428,21 +430,21 @@ class C_PiperRosNode():
             if req.gripper_code not in [0x00, 0x01, 0x02, 0x03]:
                 rospy.logwarn("gripper_code should be in [0, 1, 2, 3], default val is 1")
                 gripper_code = 1
-                response.error_code = 15901
+                response.code = 15901
             else: gripper_code = req.gripper_code
             if req.set_zero not in [0x00, 0xAE]:
                 rospy.logwarn("set_zero should be in [0, 0xAE], default val is 0")
                 set_zero = 0
-                response.error_code = 15902
+                response.code = 15902
             else: set_zero = req.set_zero
-            response.error_code = 15900
+            response.code = 15900
             self.piper.GripperCtrl(abs(gripper_angle), gripper_effort, gripper_code, set_zero)
             response.status = True
         else:
             rospy.logwarn("gripper_exist param is False.")
-            response.error_code = 15903
+            response.code = 15903
             response.status = False
-        rospy.loginfo(f"Returning GripperResponse: {response.error_code}, {response.status}")
+        rospy.loginfo(f"Returning GripperResponse: {response.code}, {response.status}")
         return response
     
     def handle_enable_service(self,req):
@@ -519,6 +521,23 @@ class C_PiperRosNode():
         rospy.loginfo(f"Returning resetResponse: {response.success}, {response.message}")
         return response
 
+    def handle_go_zero_service(self,req):
+        response = GoZeroResponse()
+        response.status = False
+        response.code = 151000
+        rospy.loginfo(f"-----------------------GOZERO---------------------------")
+        rospy.loginfo(f"piper go zero .")
+        rospy.loginfo(f"-----------------------GOZERO---------------------------")
+        if(req.is_mit_mode):
+            self.piper.MotionCtrl_2(0x01, 0x01, 50, 0xAD)
+        else:
+            self.piper.MotionCtrl_2(0x01, 0x01, 50, 0)
+        self.piper.JointCtrl(0, 0, 0, 0, 0, 0)
+        response.status = True
+        response.code = 151001
+        rospy.loginfo(f"Returning GoZeroResponse: {response.status}, {response.code}")
+        return response
+    
 if __name__ == '__main__':
     try:
         piper_signle = C_PiperRosNode()
