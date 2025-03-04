@@ -30,11 +30,11 @@ pip3 install piper_sdk
 
 ## 2 快速使用
 
-### 2.2 使能can模块
+### 2.1 使能can模块
 
 首先需要设置好shell脚本参数
 
-#### 2.2.1 单条机械臂
+#### 2.1.1 单条机械臂
 
 ##### 1）pc只插入一个usb转can模块
 
@@ -74,9 +74,9 @@ ps:**此处的意思是，1-2:1.0硬件编码的usb端口插入的can设备，�
 
 然后执行`ifconfig`查看是否有`can_piper`，如果有则can模块设置成功
 
-### 2.3 运行节点
+### 2.2 运行节点
 
-#### 2.3.1 单机械臂
+#### 2.2.1 单机械臂
 
 节点名`piper_ctrl_single_node.py`
 
@@ -227,7 +227,7 @@ rosservice call /go_zero_srv "is_mit_mode: false"
 rosservice call /go_zero_srv "is_mit_mode: true"
 ```
 
-### 2.4 piper自定义消息
+### 2.3 piper自定义消息
 
 ros功能包`piper_msgs`
 
@@ -336,78 +336,12 @@ int32 mode2
 
 - 如果打开了自动使能，尝试使能5s没有成功后，会自动退出程序
 
-## 4 使用仿真
+## 4 Moveit规划器和仿真环境
 
-### 4.1 rviz
-
-`display_xacro.launch` 打开rviz
-
-执行
-
-```shell
-cd Piper_ros
-source devel/setup.bash
-roslaunch piper_description display_xacro.launch
-```
-
-运行后会发布`/joint_states`，可以通过`rostopic echo /joint_states` 查看
-
-![ ](./asserts/pictures/tostopic_list.jpg)
-
-同时会弹出两个页面如下，滑动条数值对应`/joint_states`数值，拖动滑动条可以改变其数值，rviz中的模型也会随动
-
-有时滑动条窗口未显示，请查看下dock栏是否有窗口，可能是被其它页面覆盖了
-
-![ ](./asserts/pictures/piper_rviz.png)
-
-### 4.2 gazebo
-
-执行
-
-```shell
-cd Piper_ros
-source devel/setup.bash
-roslaunch piper_description gazebo_xacro.launch
-```
-
-![ ](./asserts/pictures/piper_gazebo.png)
-
-运行后会发布
-
-```shell
-/piper_description/joint_states
-/piper_description/joint1_position_controller/command
-/piper_description/joint2_position_controller/command
-/piper_description/joint3_position_controller/command
-/piper_description/joint4_position_controller/command
-/piper_description/joint5_position_controller/command
-/piper_description/joint6_position_controller/command
-/piper_description/joint7_position_controller/command
-/piper_description/joint8_position_controller/command
-```
-
-`/piper_description/joint_states` 是gazebo的机械臂关节状态的虚拟反馈话题，其余的为gazebo的订阅节点
-
-这几个command话题用来控制gazebo中的机械臂运动，关节在xacro中的限位如下，其中，1～6关节单位为弧度，7、8关节单位为m，因为7、8关节对应夹爪
-
-|joint_name|     limit(rad)     |    limit(angle)    |     limit(rad/s)   |   limit(rad/s^2)   |
-|----------|     ----------     |     ----------     |     ----------     |     ----------     |
-|joint1    |   [-2.618, 2.618]  |    [-150.0, 150.0] |      [0, 3.0]      |      [0, 5.0]      |
-|joint2    |   [0, 3.14]        |    [0, 180.0]      |      [0, 3.0]      |      [0, 5.0]      |
-|joint3    |   [-2.967, 0]      |    [-170, 0]       |      [0, 3.0]      |      [0, 5.0]      |
-|joint4    |   [-1.745, 1.745]  |    [-100.0, 100.0] |      [0, 3.0]      |      [0, 5.0]      |
-|joint5    |   [-1.22, 1.22]    |    [-70.0, 70.0]   |      [0, 3.0]      |      [0, 5.0]      |
-|joint6    |   [-2.0944, 2.0944]|    [-120.0, 120.0] |      [0, 3.0]      |      [0, 5.0]      |
-
-假如想要令关节1运动90度，发送
-
-```shell
-rostopic pub /piper_description/joint1_position_controller/command std_msgs/Float64 "data: 1.57"
-```
-
-可以看到机械臂link1旋转了90度
-
-![ ](./asserts/pictures/piper_gazebo_90.png)
+|说明 |文档|
+|---|---|
+|Moveit|[Moveit README](src/piper_moveit/README.md)|
+|仿真|[仿真 README](src/piper_sim/README.md)|
 
 ## Q&A
 

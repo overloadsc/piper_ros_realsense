@@ -1,6 +1,6 @@
-# AgileX Robotic Arm
+# AGX Robotic Arm
 
-[CN](README.MD)
+[中文](README.MD)
 
 ![ubuntu](https://img.shields.io/badge/Ubuntu-20.04-orange.svg)
 
@@ -8,9 +8,17 @@
 |---|---|
 |![ros](https://img.shields.io/badge/ROS-noetic-blue.svg)|![Pass](https://img.shields.io/badge/Pass-blue.svg)|
 
-## Installation
+## 0 Attention to URDF Version (Zero-point distinction)
 
-### Install dependencies
+If your robotic arm, after powering on, uses the upper computer to enable return to zero, and the j2 and j3 joints are raised by 2 degrees, it is version v00 zero point, as shown in the image below:
+
+![ ](./asserts/pictures/piper_zero.png)
+
+The old version zero point was obtained by shifting the limit positions of j2 and j3 by 2 degrees, while the current URDF files are based on the limit contact positions.
+
+## 1 Installation Method
+
+### 1.1 Install Dependencies
 
 ```shell
 pip3 install python-can
@@ -20,87 +28,67 @@ pip3 install python-can
 pip3 install piper_sdk
 ```
 
-## Quick Start
+## 2 Quick Start
 
-### Enable CAN module
+### 2.1 Enable CAN Module
 
-First, you need to set up the shell script parameters.
+First, set the shell script parameters.
 
-#### Single robotic arm
+#### 2.1.1 Single Robotic Arm
 
-##### PC with Only One USB-to-CAN Module Inserted
+##### 1) PC with only one USB-to-CAN module plugged in
 
-- ##### Use the `can_activate.sh`  
+- **Use the `can_activate.sh` script here**
 
-Directly run:
+Simply execute
 
 ```bash
 bash can_activate.sh can0 1000000
 ```
 
-##### PC with Multiple USB-to-CAN Modules Inserted
+##### 2) PC with multiple USB-to-CAN modules plugged in
 
-- ##### Use the `can_activate.sh`  script
+- **Use the `can_activate.sh` script here**
 
-Disconnect all CAN modules.
+Unplug all CAN modules.
 
-Only connect the CAN module linked to the robotic arm to the PC, and then run the script.
+Only insert the CAN module connected to the robotic arm into the PC and execute
 
 ```shell
 sudo ethtool -i can0 | grep bus
 ```
 
-and record the `bus-info` value, for example, `1-2:1.0`.
+Record the `bus-info` value, for example, `1-2:1.0`.
 
-**Note: Generally, the first inserted CAN module defaults to `can0`. If the CAN interface is not found, use `bash find_all_can_port.sh` to check the CAN names corresponding to the USB addresses.**
+ps: **Typically, the first inserted CAN module will default to can0. If no CAN is detected, use `bash find_all_can_port.sh` to check which CAN name corresponds to the USB address.**
 
-Assuming the recorded `bus-info` value from the above operation is `1-2:1.0`.
-
-Then execute the command to check if the CAN device has been successfully activated.
+Assuming the above operation records `bus-info` as `1-2:1.0`, execute the following command to check if the CAN device was successfully activated:
 
 ```bash
 bash can_activate.sh can_piper 1000000 "1-2:1.0"
 ```
 
-**Note: This means that the CAN device connected to the USB port with hardware encoding `1-2:1.0` is renamed to `can_piper`, set to a baud rate of 1,000,000, and activated.**
+ps: **This means the CAN device inserted into the `1-2:1.0` USB port is renamed to `can_piper`, with a baud rate of 1000000, and it is activated.**
 
-Then run`ifconfig` to check if `can_piper` appears. If it does, the CAN module has been successfully configured.
+Then execute `ifconfig` to check if `can_piper` appears. If so, the CAN module has been successfully configured.
 
-### Running the Node
+### 2.2 Running the Node
 
-#### Single Robotic Arm
+#### 2.2.1 Single Robotic Arm
 
 Node name: `piper_ctrl_single_node.py`
 
-param
+Parameters:
 
 ```shell
-can_port:he name of the CAN route to open.
-auto_enable: Whether to automatically enable the system. If True, the system will automatically enable upon starting the program.
-#  Set this to False if you want to manually control the enable state. If the program is interrupted and then restarted, the robotic arm will maintain the state it had during the last run.
-# If the arm was enabled, it will remain enabled after restarting.
-# If the arm was disabled, it will remain disabled after restarting.
-girpper_exist:Indicates if there is an end-effector gripper. If True, the gripper control will be enabled.
-rviz_ctrl_flag: Whether to use RViz to send joint angle messages. If True, the system will receive joint angle messages sent by rViz.
-# Since the joint 7 range in RViz is [0,0.04], but the actual gripper travel is 0.08m, joint 7 values sent by RViz will be multiplied by 2 when controlling the gripper.
-```
-
-`start_single_piper_rviz.launch`:
-
-```xml
-<launch>
-  <arg name="can_port" default="can0" />
-  <arg name="auto_enable" default="true" />
-  <include file="$(find piper_description)/launch/display_xacro.launch"/>
-  <!-- Start robotic arm node-->
-  <node name="piper_ctrl_single_node" pkg="piper" type="piper_ctrl_single_node.py" output="screen">
-    <param name="can_port" value="$(arg can_port)" />
-    <param name="auto_enable" value="$(arg auto_enable)" />
-    <param name="rviz_ctrl_flag" value="true" />
-    <param name="girpper_exist" value="true" />
-    <remap from="joint_ctrl_single" to="/joint_states" />
-  </node>
-</launch>
+can_port: the name of the CAN route to open
+auto_enable: whether to enable automatically; True enables as soon as the program starts
+# Note that if set to False, after interrupting the program and restarting the node, the arm will retain the last state
+# If the arm was enabled last time, it remains enabled after restarting
+# If the arm was disabled last time, it remains disabled after restarting
+gripper_exist: whether there is an end effector, set to True if present
+rviz_ctrl_flag: whether to use RViz to send joint angle messages; True if RViz sends joint angle messages
+# Since the range of joint7 in RViz is [0, 0.04], but the actual gripper range is 0.08m, enabling RViz control will double the joint7 value
 ```
 
 `start_single_piper.launch`:
@@ -109,224 +97,250 @@ rviz_ctrl_flag: Whether to use RViz to send joint angle messages. If True, the s
 <launch>
   <arg name="can_port" default="can0" />
   <arg name="auto_enable" default="true" />
+  <arg name="gripper_val_mutiple" default="1" />
   <!-- <include file="$(find piper_description)/launch/display_xacro.launch"/> -->
-  <!-- Start robotic arm node -->
+  <!-- Start the robotic arm node -->
   <node name="piper_ctrl_single_node" pkg="piper" type="piper_ctrl_single_node.py" output="screen">
     <param name="can_port" value="$(arg can_port)" />
     <param name="auto_enable" value="$(arg auto_enable)" />
-    <param name="rviz_ctrl_flag" value="true" />
+    <param name="gripper_val_mutiple" value="$(arg gripper_val_mutiple)" />
+    <!-- <param name="rviz_ctrl_flag" value="true" /> -->
     <param name="girpper_exist" value="true" />
     <remap from="joint_ctrl_single" to="/joint_states" />
   </node>
 </launch>
 ```
 
-Start control node
+`start_single_piper_rviz.launch`:
+
+```xml
+<launch>
+  <arg name="can_port" default="can0" />
+  <arg name="auto_enable" default="true" />
+  <include file="$(find piper_description)/launch/piper_with_gripper/display_xacro.launch"/>
+  <!-- Start the robotic arm node -->
+  <node name="piper_ctrl_single_node" pkg="piper" type="piper_ctrl_single_node.py" output="screen">
+    <param name="can_port" value="$(arg can_port)" />
+    <param name="auto_enable" value="$(arg auto_enable)" />
+    <param name="gripper_val_mutiple" value="2" />
+    <!-- <param name="rviz_ctrl_flag" value="true" /> -->
+    <param name="girpper_exist" value="true" />
+    <remap from="joint_ctrl_single" to="/joint_states" />
+  </node>
+</launch>
+```
+
+##### (1) Start the Control Node
+
+There are several ways to start the same node:
 
 ```shell
-# Start node
+# Start the node
 roscore
 rosrun piper piper_ctrl_single_node.py _can_port:=can0 _mode:=0
-# Start launch
+# Or, use launch to start the node
 roslaunch piper start_single_piper.launch can_port:=can0 auto_enable:=true
-# Or,the node can be run with default parameters
+# Or, directly run launch with default parameters
 roslaunch piper start_single_piper.launch
-# You can also use RViz to enable control by adjusting the parameters as described above.
+# RViz can also be used to start control; the parameters to change are as mentioned above
 roslaunch piper start_single_piper_rviz.launch
 ```
 
-If you only start control node but don't start rviz:
+If only the control node is started, without RViz:
 
 `rostopic list`
 
 ```shell
-/arm_status #Status of robotic arm. 
-/enable_flag #Enable flag, sent to the node, send "true" to enable
-/end_pose #Feedback on the end-effector pose of the robotic arm
-/joint_states #Subscribe to joint messages, sending joint positions through this message allows control of the robotic arm's movement.
-/joint_states_single #Feedback on the robotic arm's joint status
-/pos_cmd #End-effector control message
+/arm_status # Robotic arm status, see below
+/enable_flag # Enable flag sent to the node, send true to enable
+/end_pose # Robotic arm end effector pose feedback in quaternion
+/end_pose_euler # Robotic arm end effector pose feedback in Euler angles (custom message)
+/joint_states # Subscribe to joint messages, sending joint positions will control the arm's movement
+/joint_states_single # Robotic arm joint status feedback
+/pos_cmd # End effector control messages
 ```
 
-## Note
-
-- You need to activate the CAN device and set the correct baud rate before you can read messages from or control the robotic arm.
-- If you see:
+`rosservice list`
 
 ```shell
-Enable Status: False
-<class 'can.exceptions.CanError'> Message NOT sent
-<class 'can.exceptions.CanError'> Message NOT sent
+/enable_srv # Robotic arm enable service
+/go_zero_srv # Robotic arm zeroing service
+/gripper_srv # Robotic arm gripper control service
+/reset_srv # Robotic arm reset service
+/stop_srv # Robotic arm stop service
 ```
 
-It indicates that the robotic arm is not connected to the CAN module. After unplugging and replugging the USB, restart the robotic arm, then activate the CAN module, and try restarting the node again.
+##### (2) Enable the Robotic Arm
 
-If automatic enablement is enabled and enabling fails after 5 seconds, the program will automatically exit.
+```shell
+# Call the service
+rosservice call /enable_srv "enable_request: true"
+# Publish to the topic
+rostopic pub /enable_flag std_msgs/Bool "data: true"
+```
 
-### piper Custom Messages
+##### (3) Disable the Robotic Arm
 
-ros package `piper_msgs`
+```shell
+# Call the service
+rosservice call /enable_srv "enable_request: false"
+# Publish to the topic
+rostopic pub /enable_flag std_msgs/Bool "data: false"
+```
 
- **Robotic Arm Status Feedback Message**: Corresponds to the feedback message with `id=0x2A1` in the CAN protocol.
+##### (4) Publish Joint Messages
+
+Note that the robotic arm will lift, ensure there are no obstacles in the working range.
+
+```shell
+rostopic pub /joint_states sensor_msgs/JointState "header:
+  seq: 0
+  stamp: {secs: 0, nsecs: 0}
+  frame_id: ''
+name: ['']
+position: [0.2,0.2,-0.2,0.3,-0.2,0.5,0.01]
+velocity: [0,0,0,0,0,0,10]
+effort: [0,0,0,0,0,0,0.5]" 
+```
+
+##### (5) Stop the Robotic Arm (Note: It will fall with a constant damping)
+
+```shell
+rosservice call /stop_srv
+```
+
+##### (6) Reset the Robotic Arm (Note: It will immediately lose power and fall)
+
+```shell
+rosservice call /reset_srv
+```
+
+##### (7) Zero the Robotic Arm
+
+- If the arm is in MIT mode, set `is_mit_mode` to `true`
+- If the arm is not in MIT mode (position and velocity control mode), set `is_mit_mode` to `false`
+
+```shell
+rosservice call /go_zero_srv "is_mit_mode: false"
+rosservice call /go_zero_srv "is_mit_mode: true"
+```
+
+### 2.3 Piper Custom Messages
+
+ROS package `piper_msgs`
+
+The robotic arm's own status feedback message, corresponding to the feedback message with `id=0x2A1` in the CAN protocol.
+Description
 
 `PiperStatusMsg.msg`
 
 ```c
 uint8 ctrl_mode
 /*
-0x00 Standby mode  
-0x01 CAN command control mode
-0x02 Teaching mode
-0x03 Ethernet control mode
-0x04 wifi control mode
-0x05 Remote controller control mode
-0x06 Linked teaching mode
-0x07 Offline track mode
-*/
+0x00 Standby Mode  
+0x01 CAN Command Control Mode
+0x02 Teach Mode
+0x03 Ethernet Control Mode
+0x04 WiFi Control Mode
+0x05 Remote Control Mode
+0x06 Interactive Teach Input Mode
+0x07 Offline Trajectory Mode*/
 uint8 arm_status
 /*
 0x00 Normal
-0x01 Emergency stop
-0x02 No solution
+0x01 Emergency Stop
+0x02 No Solution
 0x03 Singularity
-0x04 Target angle exceeds limit
-0x05 Joint communication error
-0x06 Joint brake not released
-0x07 Robotic arm collision detected
-0x08 Overspeed during drag teaching
-0x09 Joint status abnormal
-0x0A Other abnormality
-0x0B Teaching record
-0x0C Teaching execution
-0x0D Teaching paused
-0x0E Main control NTC overheating
-0x0F Discharge resistor NTC overheating
-*/
+0x04 Target Angle Exceeds Limit
+0x05 Joint Communication Error
+0x06 Joint Brake Not Released
+0x07 Arm Collision
+0x08 Exceed Speed During Teach Mode
+0x09 Joint Status Error
+0x0A Other Error  
+0x0B Teach Record
+0x0C Teach Execution
+0x0D Teach Pause
+0x0E Master Control NTC Over Temperature
+0x0F Release Resistor NTC Over Temperature*/
 uint8 mode_feedback
 /*
 0x00 MOVE P
 0x01 MOVE J
 0x02 MOVE L
-0x03 MOVE C
-*/
+0x03 MOVE C*/
 uint8 teach_status
 /*
-0x00 Close
-0x01 Start teaching recording (enter drag teaching mode)
-0x02 End teaching recording (exit drag teaching mode)
-0x03 Execute teaching trajectory (reproduce drag teaching trajectory)
-0x04 Pause
-0x05 Resume (continue trajectory reproduction)
-0x06 Terminate execution
-0x07 Move to trajectory starting point
-*/
+0x00 Off
+0x01 Start Teach Recording (Enter Drag Teach Mode)
+0x02 End Teach Recording (Exit Drag Teach Mode)
+0x03 Execute Teach Trajectory (Reproduce Drag Teach Trajectory)
+0x04 Pause Execution
+0x05 Continue Execution (Resume Trajectory Reproduction)
+0x06 Terminate Execution
+0x07 Move to Trajectory Start Point*/
 uint8 motion_status
 /*
-0x00 Reached the specified point
-0x01 Not reached the specified point
-*/
+0x00 Reached Target Position
+0x01 Not Reached Target Position*/
 uint8 trajectory_num
-/* 0~255 (Feedback in offline trajectory mode) */
-int64 err_code // Error code
-bool joint_1_angle_limit// Joint 1 communication error (0: Normal, 1: Error)
-bool joint_2_angle_limit// Joint 2 communication error (0: Normal, 1: Error)
-bool joint_3_angle_limit// Joint 3 communication error (0: Normal, 1: Error)
-bool joint_4_angle_limit// Joint 4 communication error (0: Normal, 1: Error)
-bool joint_5_angle_limit// Joint 5 communication error (0: Normal, 1: Error)
-bool joint_6_angle_limit// Joint 6 communication error (0: Normal, 1: Error)
-bool communication_status_joint_1// Joint 1 angle exceeds limit (0: Normal, 1: Error)
-bool communication_status_joint_2// Joint 2 angle exceeds limit (0: Normal, 1: Error)
-bool communication_status_joint_3// Joint 3 angle exceeds limit (0: Normal, 1: Error)
-bool communication_status_joint_4// Joint 4 angle exceeds limit (0: Normal, 1: Error)
-bool communication_status_joint_5// Joint 5 angle exceeds limit (0: Normal, 1: Error)
-bool communication_status_joint_6// Joint 6 angle exceeds limit (0: Normal, 1: Error)
+/*0~255 (Feedback in Offline Trajectory Mode)*/
+int64 err_code // Fault code
+bool joint_1_angle_limit // Joint 1 Communication Error (0: Normal, 1: Error)
+bool joint_2_angle_limit // Joint 2 Communication Error (0: Normal, 1: Error)
+bool joint_3_angle_limit // Joint 3 Communication Error (0: Normal, 1: Error)
+bool joint_4_angle_limit // Joint 4 Communication Error (0: Normal, 1: Error)
+bool joint_5_angle_limit // Joint 5 Communication Error (0: Normal, 1: Error)
+bool joint_6_angle_limit // Joint 6 Communication Error (0: Normal, 1: Error)
+bool communication_status_joint_1 // Joint 1 Angle Over Limit (0: Normal, 1: Error)
+bool communication_status_joint_2 // Joint 2 Angle Over Limit (0: Normal, 1: Error)
+bool communication_status_joint_3 // Joint 3 Angle Over Limit (0: Normal, 1: Error)
+bool communication_status_joint_4 // Joint 4 Angle Over Limit (0: Normal, 1: Error)
+bool communication_status_joint_5 // Joint 5 Angle Over Limit (0: Normal, 1: Error)
+bool communication_status_joint_6 // Joint 6 Angle Over Limit (0: Normal, 1: Error)
 ```
 
-End-effector pose control: Note that some singularities may be unreachable.
+End Effector Pose Control, Note: Some singularities cannot be reached.
 
 `PosCmd.msg`
 
 ```c
+// Units: meters
 float64 x
 float64 y
 float64 z
+// Units: radians
 float64 roll
 float64 pitch
 float64 yaw
 float64 gripper
-int32 mode1// Temporarily unused
-int32 mode2// Temporarily unused
+// Temporarily invalid parameters
+int32 mode1
+int32 mode2
 ```
 
-## Simulation
+## 3 Notes
 
-`display_xacro.launch`
+- You need to activate the CAN device and set the correct baud rate before reading or controlling the robotic arm.
+- If you see:
 
-open rviz
+  ```shell
+  Enable Status: False
+  <class 'can.exceptions.CanError'> Message NOT sent
+  <class 'can.exceptions.CanError'> Message NOT sent
+  ```
 
-```shell
-cd Piper_ros
-source devel/setup.bash
-roslaunch piper_description display_xacro.launch
-```
+  It indicates that the robotic arm is not connected to the CAN module. After unplugging and re-plugging the USB, restart the robotic arm, re-activate the CAN module, and then try to restart the node again.
 
-After running, the `/joint_states` topic will be published. You can view it by `rostopic echo /joint_states`
+- If automatic enable is turned on, the program will automatically exit after 5 seconds if enable is not successful.
 
-![ ](./asserts/pictures/tostopic_list.jpg)
+## 4 Moveit Planner and Simulation Environment
 
-Two windows will appear simultaneously as follows. The slider values correspond to the `/joint_states` values. Dragging the sliders will change these values, and the model in rviz will update accordingly.
+|Description | Document|
+|---|---|
+|Moveit|[Moveit README](src/piper_moveit/README(EN).md)|
+|Simulation|[Simulation README](src/piper_sim/README(EN).md)|
 
-Sometimes the slider window is not visible. Check if there is a window in the dock. It may be covered by other pages.
+## 5 Q&A
 
-![ ](./asserts/pictures/piper_rviz.jpg)
-
-## Gazebo
-
-Run
-
-```shell
-cd Piper_ros
-source devel/setup.bash
-roslaunch piper_description gazebo_xacro.launch
-```
-
-![ ](./asserts/pictures/piper_gazebo.jpg)
-
-After running, these will be published:
-
-```shell
-/piper_description/joint_states
-/piper_description/joint1_position_controller/command
-/piper_description/joint2_position_controller/command
-/piper_description/joint3_position_controller/command
-/piper_description/joint4_position_controller/command
-/piper_description/joint5_position_controller/command
-/piper_description/joint6_position_controller/command
-/piper_description/joint7_position_controller/command
-/piper_description/joint8_position_controller/command
-```
-
-`/piper_description/joint_states` is the virtual feedback topic for the joint states of the robotic arm in Gazebo, while the others are subscriber nodes in Gazebo.
-
-These command topics are used to control the movement of the robotic arm in Gazebo. The joint limits in the xacro file are as follows: joints 1 to 6 are in radians, and joints 7 and 8 are in meters, as joints 7 and 8 correspond to the gripper.
-
-| joint_name | limit          |
-| ---------- | -------------- |
-| joint1     | [-2.618,2.618] |
-| joint2     | [0,3.14]       |
-| joint3     | [-2.697,0]     |
-| joint4     | [-1.832,1.832] |
-| joint5     | [-1.22,1.22]   |
-| joint6     | [-2.0944,2.0944]   |
-| joint7     | [0,0.038]      |
-| joint8     | [-0.038,0]     |
-
-To move Joint 1 by 90 degrees, you would need to send a command:
-
-```shell
-rostopic pub /piper_description/joint1_position_controller/command std_msgs/Float64 "data: 1.57"
-```
-
-You can see that the robot link1 rotates 90 degrees
-
-![ ](./asserts/pictures/piper_gazebo_90.jpg)
+[Q&A](Q&A.MD)
