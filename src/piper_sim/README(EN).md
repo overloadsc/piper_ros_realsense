@@ -13,7 +13,7 @@
 Clone the source code and open a terminal
 
 ```bash
-git clone https://github.com/agilexrobotics/Piper_ros.git -b ros-noetic-no_aloha
+git clone https://github.com/agilexrobotics/Piper_ros.git -b ros-noetic-no-aloha
 ```
 
 Enter the workspace

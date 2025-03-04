@@ -13,7 +13,7 @@
 git源码,打开终端
 
 ```bash
-git clone https://github.com/agilexrobotics/Piper_ros.git -b ros-noetic-no_aloha
+git clone https://github.com/agilexrobotics/Piper_ros.git -b ros-noetic-no-aloha
 ```
 
 进入工作空间
