@@ -8,31 +8,9 @@
 |---|---|
 |![ros](https://img.shields.io/badge/ROS-noetic-blue.svg)|![Pass](https://img.shields.io/badge/Pass-blue.svg)|
 
-## 1 工作空间编译
+## 1 gazebo仿真
 
-git源码,打开终端
-
-```bash
-git clone https://github.com/agilexrobotics/Piper_ros.git -b ros-noetic-no-aloha
-```
-
-进入工作空间
-
-```bash
-cd ~/Piper_ros
-```
-
-编译
-
-```bash
-catkin_make
-```
-
-## 2 仿真
-
-### 2.1 gazebo仿真
-
-#### 2.1.1 piper gazebo仿真(有夹爪)
+### 1.1 piper gazebo仿真(有夹爪)
 
 gazebo仿真运行
 
@@ -56,7 +34,7 @@ source devel/setup.bash
 roslaunch piper_description display_gripper_urdf.launch
 ```
 
-#### 2.1.2 piper gazebo仿真(无夹爪)
+### 1.2 piper gazebo仿真(无夹爪)
 
 gazebo仿真运行
 
@@ -80,7 +58,7 @@ source devel/setup.bash
 roslaunch piper_description display_no_gripper_urdf.launch
 ```
 
-#### piper_gazebo中,可以通过以下话题控制机械臂运动
+### piper_gazebo中,可以通过以下话题控制机械臂运动
 
 其中/joint_states为多关节同时控制，其他话题直接控制单关节
 
@@ -99,11 +77,11 @@ roslaunch piper_description display_no_gripper_urdf.launch
 /gazebo/joint8_position_controller/command
 ```
 
-### 2.2 mujoco仿真
+## 2 mujoco仿真
 
-#### 2.2.1 mujoco210和mujoco-py的安装
+### 2.1 mujoco210和mujoco-py的安装
 
-安装mujoco
+#### 2.1.1 安装mujoco
 
 1、[下载mujoco210](https://github.com/google-deepmind/mujoco/releases/download/2.1.0/mujoco210-linux-x86_64.tar.gz)
 
@@ -129,7 +107,7 @@ cd ~/.mujoco/mujoco210/bin
 ./simulate ../model/humanoid.xml
 ```
 
-安装mujoco-py
+#### 2.1.2 安装mujoco-py
 
 1、下载源码
 
@@ -170,7 +148,7 @@ sim.step()
 print(sim.data.qpos)
 ```
 
-#### 2.2.2 piper mujoco仿真(有夹爪)
+### 2.2 piper mujoco仿真(有夹爪)
 
 mujoco仿真运行
 
@@ -194,7 +172,7 @@ source devel/setup.bash
 roslaunch piper_description display_gripper_urdf.launch
 ```
 
-#### 2.2.3 piper mujoco仿真(无夹爪)
+### 2.3 piper mujoco仿真(无夹爪)
 
 mujoco仿真运行
 
@@ -218,7 +196,7 @@ source devel/setup.bash
 roslaunch piper_description display_no_gripper_urdf.launch
 ```
 
-#### 控制参数介绍
+### 控制参数介绍
 
 [有夹爪控制参数](../piper_description/mujoco_model/piper_description.xml)
 

@@ -18,31 +18,9 @@ Source installation requires wstool and catkin_tools:
 sudo apt install python3-wstool python3-catkin-tools python3-rosdep
 ```
 
-## 2 Compile Workspace
+## 2 Usage
 
-> The compilation here may conflict with the conda environment and the system environment. You can either uninstall conda or compile using the system environment. For more details, refer to [solution](https://blog.csdn.net/endurance2017/article/details/102997980).
-
-Clone the git source code and open the terminal:
-
-```bash
-git clone https://github.com/agilexrobotics/Piper_ros.git -b ros-noetic-no-aloha
-```
-
-Enter the workspace:
-
-```bash
-cd ~/Piper_ros
-```
-
-Compile:
-
-```bash
-catkin_make
-```
-
-## 3 Usage
-
-### 3.1 Use the piper package to open the robot control node
+### 2.1 Use the piper package to open the robot control node
 
 > Note: After restarting `moveit/demo.launch`, you need to restart the piper control node. The node can be started after running moveit.
 
@@ -61,7 +39,7 @@ roslaunch piper start_single_piper.launch gripper_val_mutiple:=2
 
 > If the enable success message appears, it is successful.
 
-### 3.2 Run Moveit
+### 2.2 Run Moveit
 
 Enter the workspace:
 
@@ -70,7 +48,7 @@ cd ~/Piper_ros
 source devel/setup.bash
 ```
 
-#### 3.2.1 Run (with gripper)
+#### 2.2.1 Run (with gripper)
 
 ```bash
 roslaunch piper_with_gripper_moveit demo.launch
@@ -108,7 +86,7 @@ rostopic echo /joint_states
 >- The 7th value is for gripper position control
 >- The 8th value is 0 and does not participate in control
 
-#### 3.2.2 Run (without gripper)
+#### 2.2.2 Run (without gripper)
 
 ```bash
 roslaunch piper_no_gripper_moveit demo.launch
@@ -120,15 +98,15 @@ If you don't want to start rviz, run:
 roslaunch piper_no_gripper_moveit demo.launch use_rviz:=false
 ```
 
-### 3.3 Plan Trajectory and Move
+### 2.3 Plan Trajectory and Move
 
-#### 3.3.1 Teach by dragging
+#### 2.3.1 Teach by dragging
 
 ![piper_moveit](../../asserts/pictures/piper_moveit.png)
 
 After adjusting the position, click "Plan & Execute" in the left "MotionPlanning" panel to start planning and moving.
 
-#### 3.3.2 Server-side Control (Joint Angle Control)
+#### 2.3.2 Server-side Control (Joint Angle Control)
 
 Control the arm (terminal input):
 
@@ -170,7 +148,7 @@ max_velocity: 0.5
 max_acceleration: 0.5" 
 ```
 
-#### 3.3.3 Client-side Control (terminal input)
+#### 2.3.3 Client-side Control (terminal input)
 
 ```bash
 cd Piper_ros
@@ -181,7 +159,7 @@ rosrun moveit_ctrl joint_moveit_ctrl.py
 > Speed and acceleration are controlled using percentage speed, ranging from 0 to 1, with the default value being 0.5. The maximum arm speed is 3(rad/s). You can change the `max_velocity=0.5`, `max_acceleration=0.5` parameters in the [joint_moveit_ctrl](../piper_moveit/moveit_ctrl/scripts/joint_moveit_ctrl.py) control function.
 > Modify `arm_position`, `gripper_position` in [joint_moveit_ctrl](../piper_moveit/moveit_ctrl/scripts/joint_moveit_ctrl.py) to control joint movement, in radians.
 
-#### 3.3.4 Moveit Class Control (Joint Angle Control)
+#### 2.3.4 Moveit Class Control (Joint Angle Control)
 
 > This part can be added in the [joint_moveit_ctrl](../piper_moveit/moveit_ctrl/scripts/joint_moveit_ctrl.py) and applied.
 
@@ -221,26 +199,26 @@ if __name__ == "__main__":
         pass
 ```
 
-## 4 Moveit Control for Simulated Arm
+## 3 Moveit Control for Simulated Arm
 
 Note: **The gripper version must correspond.**
 
-### 4.1 Gazebo
+### 3.1 Gazebo
 
-#### 4.1.1 Run Gazebo
+#### 3.1.1 Run Gazebo
 
 See [piper_gazebo](../piper_sim/README(EN).md#21-gazebo-simulation)
 
-#### 4.1.2 Moveit Control
+#### 3.1.2 Moveit Control
 
-Same as [3.2 Run Moveit](#32-run-moveit)
+Same as [2.2 Run Moveit](#22-run-moveit)
 
-### 4.2 Mujoco
+### 3.2 Mujoco
 
-#### 4.2.1 Run Mujoco
+#### 3.2.1 Run Mujoco
 
 See [piper_mujoco](../piper_sim/README(EN).md#22-mujoco-simulation)
 
-#### 4.2.2 Moveit Control
+#### 3.2.2 Moveit Control
 
-Same as [3.2 Run Moveit](#32-run-moveit)
+Same as [2.2 Run Moveit](#22-run-moveit)

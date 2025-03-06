@@ -18,31 +18,9 @@
 sudo apt install python3-wstool python3-catkin-tools python3-rosdep
 ```
 
-## 2 工作空间编译
+## 2 使用方法
 
->此处编译可能因为conda环境和系统环境冲突,可以卸载conda解决或者使用系统环境编译, 问题详情可见[解决方法](https://blog.csdn.net/endurance2017/article/details/102997980)
-
-git源码,打开终端
-
-```bash
-git clone https://github.com/agilexrobotics/Piper_ros.git -b ros-noetic-no-aloha
-```
-
-进入工作空间
-
-```bash
-cd ~/Piper_ros
-```
-
-编译
-
-```bash
-catkin_make
-```
-
-## 3 使用方法
-
-### 3.1 使用piper包打开机械臂控制节点
+### 2.1 使用piper包打开机械臂控制节点
 
 >注:每次重启moveit/demo.launch后需要重启piper控制节点,节点可在运行moveit后启动
 
@@ -61,7 +39,7 @@ roslaunch piper start_single_piper.launch gripper_val_mutiple:=2
 
 >出现使能成功即可
 
-### 3.2 运行moveit
+### 2.2 运行moveit
 
 进入工作空间
 
@@ -70,7 +48,7 @@ cd ~/Piper_ros
 source devel/setup.bash
 ```
 
-#### 3.2.1 运行(有夹爪)
+#### 2.2.1 运行(有夹爪)
 
 ```bash
 roslaunch piper_with_gripper_moveit demo.launch
@@ -108,7 +86,7 @@ rostopic echo /joint_states
 >- 第7个值为夹爪位置控制
 >- 第8个值为0不参与控制
 
-#### 3.2.2 运行(无夹爪)
+#### 2.2.2 运行(无夹爪)
 
 ```bash
 roslaunch piper_no_gripper_moveit demo.launch
@@ -120,15 +98,15 @@ roslaunch piper_no_gripper_moveit demo.launch
 roslaunch piper_no_gripper_moveit demo.launch use_rviz:=false
 ```
 
-### 3.3 规划轨迹并运动
+### 2.3 规划轨迹并运动
 
-#### 3.3.1 拖动示教
+#### 2.3.1 拖动示教
 
 ![piper_moveit](../../asserts/pictures/piper_moveit.png)
 
 调整好位置后点击左侧MotionPlanning中Planning的Plan&Execute即可开始规划并运动
 
-#### 3.3.2 服务端控制(关节弧度控制)
+#### 2.3.2 服务端控制(关节弧度控制)
 
 控制机械臂 (终端输入)
 
@@ -172,7 +150,7 @@ max_velocity: 0.5
 max_acceleration: 0.5" 
 ```
 
-#### 3.3.3 客户端控制 (终端输入)
+#### 2.3.3 客户端控制 (终端输入)
 
 ```bash
 cd Piper_ros
@@ -183,7 +161,7 @@ rosrun moveit_ctrl joint_moveit_ctrl.py
 > 速度和加速度使用百分比控速,范围为(0-1),默认为0.5,机械臂最大速度为3(rad/s).可在[joint_moveit_ctrl](../piper_moveit/moveit_ctrl/scripts/joint_moveit_ctrl.py)中的控制函数中的max_velocity=0.5, max_acceleration=0.5参数更改
 > 更改 [joint_moveit_ctrl](../piper_moveit/moveit_ctrl/scripts/joint_moveit_ctrl.py)中的 arm_position, gripper_position 控制关节运动,单位为弧度
 
-#### 3.3.4 moveit类控制 (关节弧度控制)
+#### 2.3.4 moveit类控制 (关节弧度控制)
 
 > 此部分可加在 [joint_moveit_ctrl](../piper_moveit/moveit_ctrl/scripts/joint_moveit_ctrl.py) 中应用
 
@@ -223,19 +201,19 @@ if __name__ == "__main__":
         pass
 ```
 
-## 4 moveit控制仿真机械臂
+## 3 moveit控制仿真机械臂
 
 注：**有无夹爪版本需要对应**
 
-### 4.1 gazebo
+### 3.1 gazebo
 
-#### 4.1.1 运行gazebo
+#### 3.1.1 运行gazebo
 
 见 [piper_gazebo](../piper_sim/README.md#21-gazebo仿真)
 
 #### 4.1.2 moveit控制
 
-同 [3.2 运行moveit](#32-运行moveit)
+同 [2.2 运行moveit](#22-运行moveit)
 
 ### 4.2 mujoco
 
@@ -245,4 +223,4 @@ if __name__ == "__main__":
 
 #### 4.2.2 moveit控制
 
-同 [3.2 运行moveit](#32-运行moveit)
+同 [2.2 运行moveit](#22-运行moveit)

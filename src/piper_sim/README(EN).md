@@ -8,31 +8,9 @@
 |---|---|
 |![ros](https://img.shields.io/badge/ROS-noetic-blue.svg)|![Pass](https://img.shields.io/badge/Pass-blue.svg)|
 
-## 1 Workspace Compilation
+## 1 Gazebo Simulation
 
-Clone the source code and open a terminal
-
-```bash
-git clone https://github.com/agilexrobotics/Piper_ros.git -b ros-noetic-no-aloha
-```
-
-Enter the workspace
-
-```bash
-cd ~/Piper_ros
-```
-
-Compile the workspace
-
-```bash
-catkin_make
-```
-
-## 2 Simulation
-
-### 2.1 Gazebo Simulation
-
-#### 2.1.1 Piper Gazebo Simulation (With Gripper)
+### 1.1 Piper Gazebo Simulation (With Gripper)
 
 Run the Gazebo simulation
 
@@ -56,7 +34,7 @@ source devel/setup.bash
 roslaunch piper_description display_gripper_urdf.launch
 ```
 
-#### 2.1.2 Piper Gazebo Simulation (Without Gripper)
+### 1.2 Piper Gazebo Simulation (Without Gripper)
 
 Run the Gazebo simulation
 
@@ -80,7 +58,7 @@ source devel/setup.bash
 roslaunch piper_description display_no_gripper_urdf.launch
 ```
 
-#### Control the arm in Piper Gazebo through the following topics
+### Control the arm in Piper Gazebo through the following topics
 
 The `/joint_states` topic controls multiple joints simultaneously, while other topics control individual joints.
 
@@ -99,11 +77,11 @@ Note: Joint 7 directly controls both joint 7 and joint 8, so joint 8 is not invo
 /gazebo/joint8_position_controller/command
 ```
 
-### 2.2 Mujoco Simulation
+## 2 Mujoco Simulation
 
-#### 2.2.1 Installing Mujoco210 and mujoco-py
+### 2.1 Installing Mujoco210 and mujoco-py
 
-Install Mujoco
+#### 2.1.1 Install Mujoco
 
 1. [Download Mujoco210](https://github.com/google-deepmind/mujoco/releases/download/2.1.0/mujoco210-linux-x86_64.tar.gz)
 
@@ -129,7 +107,7 @@ Install Mujoco
     ./simulate ../model/humanoid.xml
     ```
 
-Install mujoco-py
+#### 2.1.2 Install mujoco-py
 
 1. Download the source code
 
@@ -170,7 +148,7 @@ Install mujoco-py
     print(sim.data.qpos)
     ```
 
-#### 2.2.2 Piper Mujoco Simulation (With Gripper)
+### 2.2 Piper Mujoco Simulation (With Gripper)
 
 Run the Mujoco simulation
 
@@ -194,7 +172,7 @@ source devel/setup.bash
 roslaunch piper_description display_gripper_urdf.launch
 ```
 
-#### 2.2.3 Piper Mujoco Simulation (Without Gripper)
+### 2.3 Piper Mujoco Simulation (Without Gripper)
 
 Run the Mujoco simulation
 
@@ -218,7 +196,7 @@ source devel/setup.bash
 roslaunch piper_description display_no_gripper_urdf.launch
 ```
 
-#### Control Parameter Explanation
+### Control Parameter Explanation
 
 [Control parameters for the gripper](../piper_description/mujoco_model/piper_description.xml)
 
