@@ -15,7 +15,7 @@
 Run the Gazebo simulation
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -26,7 +26,7 @@ roslaunch piper_gazebo piper_gazebo.launch
 Control the gripper arm via RViz GUI (Run in a new terminal)
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -39,7 +39,7 @@ roslaunch piper_description display_gripper_urdf.launch
 Run the Gazebo simulation
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -50,7 +50,7 @@ roslaunch piper_gazebo piper_no_gripper_gazebo.launch
 Control the arm without the gripper via RViz GUI (Run in a new terminal)
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -153,7 +153,7 @@ Note: Joint 7 directly controls both joint 7 and joint 8, so joint 8 is not invo
 Run the Mujoco simulation
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -164,7 +164,7 @@ roslaunch piper_mujoco piper_mujoco.launch
 Control the gripper arm via RViz GUI (Run in a new terminal)
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -177,7 +177,7 @@ roslaunch piper_description display_gripper_urdf.launch
 Run the Mujoco simulation
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -188,7 +188,7 @@ roslaunch piper_mujoco piper_no_gripper_mujoco.launch
 Control the arm without the gripper via RViz GUI (Run in a new terminal)
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 

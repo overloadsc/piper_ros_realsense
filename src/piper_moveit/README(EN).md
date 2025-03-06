@@ -27,7 +27,7 @@ sudo apt install python3-wstool python3-catkin-tools python3-rosdep
 Enter the workspace:
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -44,7 +44,7 @@ roslaunch piper start_single_piper.launch gripper_val_mutiple:=2
 Enter the workspace:
 
 ```bash
-cd ~/Piper_ros
+cd ~/piper_ros
 source devel/setup.bash
 ```
 
@@ -111,7 +111,7 @@ After adjusting the position, click "Plan & Execute" in the left "MotionPlanning
 Control the arm (terminal input):
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -151,7 +151,7 @@ max_acceleration: 0.5"
 #### 2.3.3 Client-side Control (terminal input)
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 rosrun moveit_ctrl joint_moveit_ctrl.py
 ```

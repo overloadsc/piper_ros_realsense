@@ -15,7 +15,7 @@
 gazebo仿真运行
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -26,7 +26,7 @@ roslaunch piper_gazebo piper_gazebo.launch
 通过rviz_gui控制有夹爪机械臂(新终端运行)
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -39,7 +39,7 @@ roslaunch piper_description display_gripper_urdf.launch
 gazebo仿真运行
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -50,7 +50,7 @@ roslaunch piper_gazebo piper_no_gripper_gazebo.launch
 通过rviz_gui控制无夹爪机械臂(新终端运行)
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -153,7 +153,7 @@ print(sim.data.qpos)
 mujoco仿真运行
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -164,7 +164,7 @@ roslaunch piper_mujoco piper_mujoco.launch
 通过rviz_gui控制有夹爪机械臂(新终端运行)
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -177,7 +177,7 @@ roslaunch piper_description display_gripper_urdf.launch
 mujoco仿真运行
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -188,7 +188,7 @@ roslaunch piper_mujoco piper_no_gripper_mujoco.launch
 通过rviz_gui控制无夹爪机械臂(新终端运行)
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 

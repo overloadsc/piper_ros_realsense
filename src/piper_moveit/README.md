@@ -27,7 +27,7 @@ sudo apt install python3-wstool python3-catkin-tools python3-rosdep
 进入工作空间
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -44,7 +44,7 @@ roslaunch piper start_single_piper.launch gripper_val_mutiple:=2
 进入工作空间
 
 ```bash
-cd ~/Piper_ros
+cd ~/piper_ros
 source devel/setup.bash
 ```
 
@@ -111,7 +111,7 @@ roslaunch piper_no_gripper_moveit demo.launch use_rviz:=false
 控制机械臂 (终端输入)
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 ```
 
@@ -153,7 +153,7 @@ max_acceleration: 0.5"
 #### 2.3.3 客户端控制 (终端输入)
 
 ```bash
-cd Piper_ros
+cd piper_ros
 source devel/setup.bash
 rosrun moveit_ctrl joint_moveit_ctrl.py
 ```
