@@ -28,6 +28,13 @@ pip3 install python-can
 pip3 install piper_sdk
 ```
 
+```shell
+source /opt/ros/noetic/setup.bash
+sudo apt install python3-wstool python3-catkin-tools python3-rosdep ros-noetic-ruckig
+sudo apt-get install ros-noetic-eigen-stl-containers ros-noetic-geometric-shapes ros-noetic-moveit-msgs ros-noetic-srdfdom ros-noetic-pybind11-catkin
+sudo apt-get install ros-noetic-moveit-resources-panda-moveit-config ros-noetic-ompl ros-noetic-warehouse-ros ros-noetic-eigenpy ros-noetic-rosparam-shortcuts
+```
+
 ## 2 Quick Start
 
 ### 2.1 Enable CAN Module
