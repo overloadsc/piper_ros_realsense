@@ -15,7 +15,7 @@ import math
 from piper_sdk import *
 from piper_sdk import C_PiperInterface
 from std_srvs.srv import Trigger, TriggerResponse
-from piper_msgs.msg import PiperStatusMsg, PosCmd
+from piper_msgs.msg import PiperStatusMsg, PosCmd, PiperEulerPose
 from piper_msgs.srv import Enable, EnableResponse
 from piper_msgs.srv import Gripper, GripperResponse
 from piper_msgs.srv import GoZero, GoZeroResponse
@@ -86,8 +86,9 @@ class C_PiperRosNode():
         # publish
         self.joint_pub = rospy.Publisher('joint_states_single', JointState, queue_size=1)
         self.arm_status_pub = rospy.Publisher('arm_status', PiperStatusMsg, queue_size=1)
-        self.end_pose_euler_pub = rospy.Publisher('end_pose_euler', PosCmd, queue_size=1)
+        # self.end_pose_euler_pub = rospy.Publisher('end_pose_euler', PosCmd, queue_size=1)
         self.end_pose_pub = rospy.Publisher('end_pose', PoseStamped, queue_size=1)
+        self.end_pose_euler_pub = rospy.Publisher('end_pose_euler', PiperEulerPose, queue_size=1)
         # service
         self.enable_service = rospy.Service('enable_srv', Enable, self.handle_enable_service)  # 创建enable服务
         self.__enable_flag = False
@@ -236,19 +237,15 @@ class C_PiperRosNode():
         endpos.header.stamp = rospy.Time.now()
         self.end_pose_pub.publish(endpos)
         
-        end_pose_euler = PosCmd()
+        end_pose_euler = PiperEulerPose()
+        end_pose_euler.header.stamp = rospy.Time.now()
+        # end_pose_euler.header.seq = endpos.header.seq
         end_pose_euler.x = self.piper.GetArmEndPoseMsgs().end_pose.X_axis/1000000
         end_pose_euler.y = self.piper.GetArmEndPoseMsgs().end_pose.Y_axis/1000000
         end_pose_euler.z = self.piper.GetArmEndPoseMsgs().end_pose.Z_axis/1000000
         end_pose_euler.roll = roll
         end_pose_euler.pitch = pitch
         end_pose_euler.yaw = yaw
-        if(self.gripper_exist):
-            end_pose_euler.gripper = self.piper.GetArmGripperMsgs().gripper_state.grippers_angle/1000000
-        else:
-            end_pose_euler.gripper = -1
-        end_pose_euler.mode1 = 0
-        end_pose_euler.mode2 = 0
         self.end_pose_euler_pub.publish(end_pose_euler)
     
     def SubPosThread(self):

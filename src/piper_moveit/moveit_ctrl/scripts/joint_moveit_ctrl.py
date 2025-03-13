@@ -64,7 +64,7 @@ def convert_endpose(endpose):
     if len(endpose) == 6:
         x, y, z, roll, pitch, yaw = endpose
         qx, qy, qz, qw = quaternion_from_euler(roll, pitch, yaw)
-        return [x, y, z, qw, qx, qy, qz]
+        return [x, y, z, qx, qy, qz, qw]
 
     elif len(endpose) == 7:
         return endpose  # 直接返回四元数
@@ -110,21 +110,21 @@ def main():
     rospy.init_node("test_joint_moveit_ctrl", anonymous=True)
     arm_position, gripper_position = [], 0
     for i in range(10): 
-        arm_position, _ = randomval()  # 机械臂控制
-        call_joint_moveit_ctrl_arm(arm_position, max_velocity=0.5, max_acceleration=0.5)
-        time.sleep(1)
-        _, gripper_position = randomval()  # 夹爪控制
-        call_joint_moveit_ctrl_gripper(gripper_position)
-        time.sleep(1)
-        arm_position, gripper_position = randomval()
-        call_joint_moveit_ctrl_piper(arm_position, gripper_position)  # 机械臂夹爪联合控制
-        time.sleep(1)
-        # endpose_euler = [0.216497, 0.002695, 0.133803, -3.09083848, 0.07813839, 2.92377556]
+        # arm_position, _ = randomval()  # 机械臂控制
+        # call_joint_moveit_ctrl_arm(arm_position, max_velocity=0.5, max_acceleration=0.5)
+        # time.sleep(1)
+        # _, gripper_position = randomval()  # 夹爪控制
+        # call_joint_moveit_ctrl_gripper(gripper_position)
+        # time.sleep(1)
+        # arm_position, gripper_position = randomval()
+        # call_joint_moveit_ctrl_piper(arm_position, gripper_position)  # 机械臂夹爪联合控制
+        # time.sleep(1)
+        # endpose_euler = [-0.089621,0.050733,0.369871,-1.7312269916382153,0.33751177075066346,-2.6507711613439477]
         # call_joint_moveit_ctrl_endpose(endpose_euler)  # 末端位置控制(欧拉角)
         # time.sleep(1)
-        # endpose_quaternion = [0, 0.20145, 0.0, 0.0, 0.01324575,  0,  0.99991227]
-        # call_joint_moveit_ctrl_endpose(endpose_quaternion)  # 末端位置控制(四元数)
-        # time.sleep(1)
+        endpose_quaternion = [-0.089621,0.050733,0.369871,-0.07677750539260268,0.7546327950992527,-0.5887472298192306,0.27930495628713825]
+        call_joint_moveit_ctrl_endpose(endpose_quaternion)  # 末端位置控制(四元数)
+        time.sleep(1)
 
 if __name__ == "__main__":
     main()

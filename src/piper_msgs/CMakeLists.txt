@@ -77,6 +77,7 @@ add_message_files(
   FILES
   PiperStatusMsg.msg
   PosCmd.msg
+  PiperEulerPose.msg
 )
 add_service_files(
   FILES
