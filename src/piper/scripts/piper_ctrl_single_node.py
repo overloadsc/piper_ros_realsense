@@ -209,11 +209,17 @@ class C_PiperRosNode():
         vel_3:float = self.piper.GetArmHighSpdInfoMsgs().motor_4.motor_speed/1000
         vel_4:float = self.piper.GetArmHighSpdInfoMsgs().motor_5.motor_speed/1000
         vel_5:float = self.piper.GetArmHighSpdInfoMsgs().motor_6.motor_speed/1000
+        effort_0:float = self.piper.GetArmHighSpdInfoMsgs().motor_1.effort/1000
+        effort_1:float = self.piper.GetArmHighSpdInfoMsgs().motor_2.effort/1000
+        effort_2:float = self.piper.GetArmHighSpdInfoMsgs().motor_3.effort/1000
+        effort_3:float = self.piper.GetArmHighSpdInfoMsgs().motor_4.effort/1000
+        effort_4:float = self.piper.GetArmHighSpdInfoMsgs().motor_5.effort/1000
+        effort_5:float = self.piper.GetArmHighSpdInfoMsgs().motor_6.effort/1000
         effort_6:float = self.piper.GetArmGripperMsgs().gripper_state.grippers_effort/1000
         self.joint_states.header.stamp = rospy.Time.now()
-        self.joint_states.position = [joint_0,joint_1, joint_2, joint_3, joint_4, joint_5,joint_6]  # Example values
-        self.joint_states.velocity = [vel_0, vel_1, vel_2, vel_3, vel_4, vel_5]  # Example values
-        self.joint_states.effort = [0, 0, 0, 0, 0, 0, effort_6]
+        self.joint_states.position = [joint_0,joint_1, joint_2, joint_3, joint_4, joint_5,joint_6]
+        self.joint_states.velocity = [vel_0, vel_1, vel_2, vel_3, vel_4, vel_5]
+        self.joint_states.effort = [effort_0, effort_1, effort_2, effort_3, effort_4, effort_5, effort_6]
         # 发布所有消息
         self.joint_pub.publish(self.joint_states)
     

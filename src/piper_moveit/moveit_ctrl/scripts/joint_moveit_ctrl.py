@@ -119,12 +119,14 @@ def main():
         # arm_position, gripper_position = randomval()
         # call_joint_moveit_ctrl_piper(arm_position, gripper_position)  # 机械臂夹爪联合控制
         # time.sleep(1)
-        # endpose_euler = [-0.089621,0.050733,0.369871,-1.7312269916382153,0.33751177075066346,-2.6507711613439477]
+        # endpose_euler = [0.531014, -0.133376, 0.418909, -0.6052452780065936, 1.2265301318390152, -0.9107128036906411]
         # call_joint_moveit_ctrl_endpose(endpose_euler)  # 末端位置控制(欧拉角)
         # time.sleep(1)
-        endpose_quaternion = [-0.089621,0.050733,0.369871,-0.07677750539260268,0.7546327950992527,-0.5887472298192306,0.27930495628713825]
-        call_joint_moveit_ctrl_endpose(endpose_quaternion)  # 末端位置控制(四元数)
+        # endpose_quaternion = [0.531014, -0.133376, 0.418909, 0.02272779901175584, 0.6005891177332143, -0.18925185045722595, 0.7765049233012219]
+        # call_joint_moveit_ctrl_endpose(endpose_quaternion)  # 末端位置控制(四元数)
+        # time.sleep(1)
+        arm_position = [0, 0, 0, 0, 0, 0]
+        call_joint_moveit_ctrl_arm(arm_position, max_velocity=0.5, max_acceleration=0.5) # 回零
         time.sleep(1)
-
 if __name__ == "__main__":
     main()
