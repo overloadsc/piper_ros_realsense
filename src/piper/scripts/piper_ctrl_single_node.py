@@ -98,9 +98,9 @@ class C_PiperRosNode():
         self.go_zero_service = rospy.Service('go_zero_srv', GoZero, self.handle_go_zero_service)  # 创建reset服务
         # joint
         self.joint_states = JointState()
-        self.joint_states.name = ['joint0', 'joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6']
+        self.joint_states.name = ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6', 'gripper']
         self.joint_states.position = [0.0] * 7
-        self.joint_states.velocity = [0.0] * 6
+        self.joint_states.velocity = [0.0] * 7
         self.joint_states.effort = [0.0] * 7
         
         # 创建piper类并打开can接口
@@ -218,7 +218,7 @@ class C_PiperRosNode():
         effort_6:float = self.piper.GetArmGripperMsgs().gripper_state.grippers_effort/1000
         self.joint_states.header.stamp = rospy.Time.now()
         self.joint_states.position = [joint_0,joint_1, joint_2, joint_3, joint_4, joint_5,joint_6]
-        self.joint_states.velocity = [vel_0, vel_1, vel_2, vel_3, vel_4, vel_5]
+        self.joint_states.velocity = [vel_0, vel_1, vel_2, vel_3, vel_4, vel_5, 0.0]
         self.joint_states.effort = [effort_0, effort_1, effort_2, effort_3, effort_4, effort_5, effort_6]
         # 发布所有消息
         self.joint_pub.publish(self.joint_states)
