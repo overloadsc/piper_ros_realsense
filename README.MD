@@ -18,7 +18,7 @@ S-V1.6-3固件版本以后的DH参数将j2和j3的坐标系偏移了2度
 
 |firmware version |urdf|
 |---|---|
-|current version <= S-V1.6-3|`piper_description_old.urdf`|
+|current version < S-V1.6-3|`piper_description_old.urdf`|
 |current version >= S-V1.6-3|`piper_description.urdf`|
 
 ## 1 安装方法
