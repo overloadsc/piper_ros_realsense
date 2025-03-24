@@ -8,13 +8,18 @@
 |---|---|
 |![ros](https://img.shields.io/badge/ROS-noetic-blue.svg)|![Pass](https://img.shields.io/badge/Pass-blue.svg)|
 
-## 0 注意URDF版本(以零点区分)
+## 0 注意URDF版本
 
-若您的机械臂，上电后使用上位机使能回零，j2和j3关节抬起了2度的角度，则为v00版零点，如下图:
+S-V1.6-3固件版本以前的DH参数为各关节接触限位处为初始坐标得到
 
-![ ](./asserts/pictures/piper_zero.png)
+S-V1.6-3固件版本以后的DH参数将j2和j3的坐标系偏移了2度
 
-旧版本零点以j2和j3的限位位置偏移2度得到，现URDF中的文件都是接触限位处
+现默认URDF为后者
+
+|firmware version |urdf|
+|---|---|
+|current version <= S-V1.6-3|`piper_description_old.urdf`|
+|current version >= S-V1.6-3|`piper_description.urdf`|
 
 ## 1 安装方法
 
