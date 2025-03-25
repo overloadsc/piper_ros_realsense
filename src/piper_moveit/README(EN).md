@@ -18,28 +18,9 @@ Source installation requires wstool and catkin_tools:
 sudo apt install python3-wstool python3-catkin-tools python3-rosdep
 ```
 
-## 2 Usage
+## 2 Usage`
 
-### 2.1 Use the piper package to open the robot control node
-
-> Note: After restarting `moveit/demo.launch`, you need to restart the piper control node. The node can be started after running moveit.
-
-Enter the workspace:
-
-```bash
-cd piper_ros
-source devel/setup.bash
-```
-
-Run the node (Gripper control value multiplied by 2):
-
-```bash
-roslaunch piper start_single_piper.launch gripper_val_mutiple:=2
-```
-
-> If the enable success message appears, it is successful.
-
-### 2.2 Run Moveit
+### 2.1 Run Moveit
 
 Enter the workspace:
 
@@ -48,7 +29,17 @@ cd ~/piper_ros
 source devel/setup.bash
 ```
 
-#### 2.2.1 Run (with gripper)
+#### 2.1.1 Run (with gripper)
+
+Start the ROS control node (Gripper control value doubled):
+
+```bash
+roslaunch piper start_single_piper.launch gripper_val_mutiple:=2
+```
+
+> The process is successful when the enable confirmation appears.
+
+Start the moveit
 
 ```bash
 roslaunch piper_with_gripper_moveit demo.launch
@@ -87,6 +78,16 @@ rostopic echo /joint_states
 >- The 8th value is 0 and does not participate in control
 
 #### 2.2.2 Run (without gripper)
+
+Start the ROS control node (Gripper control value doubled):
+
+```bash
+roslaunch piper start_single_piper.launch gripper_val_mutiple:=2
+```
+
+> The process is successful when the enable confirmation appears.
+
+Start the moveit
 
 ```bash
 roslaunch piper_no_gripper_moveit demo.launch

@@ -20,26 +20,7 @@ sudo apt install python3-wstool python3-catkin-tools python3-rosdep
 
 ## 2 使用方法
 
-### 2.1 使用piper包打开机械臂控制节点
-
->注:每次重启moveit/demo.launch后需要重启piper控制节点,节点可在运行moveit后启动
-
-进入工作空间
-
-```bash
-cd piper_ros
-source devel/setup.bash
-```
-
-运行节点(夹爪控制值二倍)
-
-```bash
-roslaunch piper start_single_piper.launch gripper_val_mutiple:=2
-```
-
->出现使能成功即可
-
-### 2.2 运行moveit
+### 2.1 运行moveit
 
 进入工作空间
 
@@ -48,7 +29,17 @@ cd ~/piper_ros
 source devel/setup.bash
 ```
 
-#### 2.2.1 运行(有夹爪)
+#### 2.1.1 运行(有夹爪)
+
+开启ros控制节点(夹爪控制值二倍)
+
+```bash
+roslaunch piper start_single_piper.launch gripper_val_mutiple:=2
+```
+
+>出现使能成功即可
+
+运行moveit
 
 ```bash
 roslaunch piper_with_gripper_moveit demo.launch
@@ -86,7 +77,15 @@ rostopic echo /joint_states
 >- 第7个值为夹爪位置控制
 >- 第8个值为0不参与控制
 
-#### 2.2.2 运行(无夹爪)
+#### 2.1.2 运行(无夹爪)
+
+开启ros控制节点(夹爪控制值二倍)
+
+```bash
+roslaunch piper start_single_piper.launch gripper_val_mutiple:=2
+```
+
+>出现使能成功即可
 
 ```bash
 roslaunch piper_no_gripper_moveit demo.launch
@@ -98,15 +97,15 @@ roslaunch piper_no_gripper_moveit demo.launch
 roslaunch piper_no_gripper_moveit demo.launch use_rviz:=false
 ```
 
-### 2.3 规划轨迹并运动
+### 2.2 规划轨迹并运动
 
-#### 2.3.1 拖动示教
+#### 2.2.1 拖动示教
 
 ![piper_moveit](../../asserts/pictures/piper_moveit.png)
 
 调整好位置后点击左侧MotionPlanning中Planning的Plan&Execute即可开始规划并运动
 
-#### 2.3.2 服务端控制(关节弧度控制)
+#### 2.2.2 服务端控制(关节弧度控制)
 
 控制机械臂 (终端输入)
 
@@ -150,7 +149,7 @@ max_velocity: 0.5
 max_acceleration: 0.5" 
 ```
 
-#### 2.3.3 客户端控制 (终端输入)
+#### 2.2.3 客户端控制 (终端输入)
 
 ```bash
 cd piper_ros
@@ -161,7 +160,7 @@ rosrun moveit_ctrl joint_moveit_ctrl.py
 > 速度和加速度使用百分比控速,范围为(0-1),默认为0.5,机械臂最大速度为3(rad/s).可在[joint_moveit_ctrl](../piper_moveit/moveit_ctrl/scripts/joint_moveit_ctrl.py)中的控制函数中的max_velocity=0.5, max_acceleration=0.5参数更改
 > 更改 [joint_moveit_ctrl](../piper_moveit/moveit_ctrl/scripts/joint_moveit_ctrl.py)中的 arm_position, gripper_position 控制关节运动,单位为弧度
 
-#### 2.3.4 moveit类控制 (关节弧度控制)
+#### 2.2.4 moveit类控制 (关节弧度控制)
 
 > 此部分可加在 [joint_moveit_ctrl](../piper_moveit/moveit_ctrl/scripts/joint_moveit_ctrl.py) 中应用
 
