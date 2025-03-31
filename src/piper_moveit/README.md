@@ -10,7 +10,8 @@
 
 ## 1 安装Moveit环境
 
-> 注:moveit 1.1.11包含在src中,无需单独下载
+> 注:moveit 1.1.11包含在src中，无需单独下载，只是包moveit-1.1.11路径下存放了CATKIN_IGNORE文件，默认不会编译它
+> 如果解决moveit的编译问题太多，可以直接通过`sudo apt install ros-$ROS_DISTRO-moveit`来安装官方源的moeit
 
 源安装需要 wstool,catkin_tools:
 
