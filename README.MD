@@ -57,7 +57,7 @@ sudo apt-get install ros-noetic-moveit-msgs ros-noetic-srdfdom
 
 编译
 
-注意：如果由于moveit编译报错无法解决，可以直接通过`sudo apt install ros-$ROS_DISTRO-moveit`来安装官方源的moveit，然后删掉`src/piper_moveit/moveit-1.1.11`这个目录，或者在该路径下创建名字为`CATKIN_IGNORE`的空文件即可让ros在编译期间忽略这个包，然后删掉`build/`和`devel`路径重新编译。
+注意：如果由于moveit编译报错无法解决，可以直接通过`sudo apt install ros-$ROS_DISTRO-moveit`来安装官方源的moveit，然后删掉`src/piper_moveit/moveit-1.1.11`这个目录，或者在该路径下创建名字为`CATKIN_IGNORE`的空文件即可让ros在编译期间忽略这个包，然后删掉`build/`和`devel/`路径重新编译。
 
 ```shell
 cd piper_ros
