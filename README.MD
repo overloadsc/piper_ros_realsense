@@ -1,4 +1,4 @@
-# agx 机械臂
+# Piper 机械臂ROS(noetic)
 
 [EN](README(EN).md)
 
@@ -7,6 +7,15 @@
 |ROS |STATE|
 |---|---|
 |![ros](https://img.shields.io/badge/ROS-noetic-blue.svg)|![Pass](https://img.shields.io/badge/Pass-blue.svg)|
+
+```shell
+git clone https://github.com/agilexrobotics/piper_ros.git
+```
+
+```shell
+cd piper_ros
+git checkout noetic
+```
 
 ## 0 注意URDF版本
 
