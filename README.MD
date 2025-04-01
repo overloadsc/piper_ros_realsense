@@ -17,6 +17,11 @@ cd piper_ros
 git checkout noetic
 ```
 
+|说明 |文档|
+|---|---|
+|Moveit|[Moveit README](src/piper_moveit/README.md)|
+|仿真|[仿真 README](src/piper_sim/README.md)|
+
 ## 0 注意URDF版本
 
 S-V1.6-3固件版本以前的DH参数为各关节接触限位处为初始坐标得到
@@ -357,13 +362,6 @@ int32 mode2
   说明机械臂没有与can模块连同，拔插usb后，重新启动机械臂，再激活can模块，然后尝试重新启动节点
 
 - 如果打开了自动使能，尝试使能5s没有成功后，会自动退出程序
-
-## 4 Moveit规划器和仿真环境
-
-|说明 |文档|
-|---|---|
-|Moveit|[Moveit README](src/piper_moveit/README.md)|
-|仿真|[仿真 README](src/piper_sim/README.md)|
 
 ## Q&A
 

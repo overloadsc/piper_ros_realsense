@@ -8,6 +8,20 @@
 |---|---|
 |![ros](https://img.shields.io/badge/ROS-noetic-blue.svg)|![Pass](https://img.shields.io/badge/Pass-blue.svg)|
 
+```shell
+git clone https://github.com/agilexrobotics/piper_ros.git
+```
+
+```shell
+cd piper_ros
+git checkout noetic
+```
+
+|Description | Document|
+|---|---|
+|Moveit|[Moveit README](src/piper_moveit/README(EN).md)|
+|Simulation|[Simulation README](src/piper_sim/README(EN).md)|
+
 ## 0 Attention to URDF Version (Zero-point distinction)
 
 If your robotic arm, after powering on, uses the upper computer to enable return to zero, and the j2 and j3 joints are raised by 2 degrees, it is version v00 zero point, as shown in the image below:
@@ -341,13 +355,6 @@ int32 mode2
 
 - If automatic enable is turned on, the program will automatically exit after 5 seconds if enable is not successful.
 
-## 4 Moveit Planner and Simulation Environment
-
-|Description | Document|
-|---|---|
-|Moveit|[Moveit README](src/piper_moveit/README(EN).md)|
-|Simulation|[Simulation README](src/piper_sim/README(EN).md)|
-
-## 5 Q&A
+## Q&A
 
 [Q&A](Q&A.MD)
