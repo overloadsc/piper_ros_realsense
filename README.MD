@@ -49,10 +49,19 @@ pip3 install piper_sdk
 
 ```shell
 source /opt/ros/noetic/setup.bash
-sudo apt install python3-wstool python3-catkin-tools python3-rosdep ros-noetic-ruckig
+sudo apt-get install python3-wstool python3-catkin-tools python3-rosdep ros-noetic-ruckig
 sudo apt-get install ros-noetic-eigen-stl-containers ros-noetic-geometric-shapes ros-noetic-pybind11-catkin
 sudo apt-get install ros-noetic-moveit-resources-panda-moveit-config ros-noetic-ompl ros-noetic-warehouse-ros ros-noetic-eigenpy ros-noetic-rosparam-shortcuts
-sudo apt install ros-noetic-moveit-msgs ros-noetic-srdfdom
+sudo apt-get install ros-noetic-moveit-msgs ros-noetic-srdfdom
+```
+
+编译
+
+注意：如果由于moveit编译报错无法解决，可以直接通过`sudo apt install ros-$ROS_DISTRO-moveit`来安装官方源的moveit，然后删掉`src/piper_moveit/moveit-1.1.11`这个目录，或者在该路径下创建名字为`CATKIN_IGNORE`的空文件即可让ros在编译期间忽略这个包，然后删掉`build/`和`devel`路径重新编译。
+
+```shell
+cd piper_ros
+catkin_make
 ```
 
 ## 2 快速使用
@@ -359,7 +368,7 @@ int32 mode2
   <class 'can.exceptions.CanError'> Message NOT sent
   ```
 
-  说明机械臂没有与can模块连同，拔插usb后，重新启动机械臂，再激活can模块，然后尝试重新启动节点
+  说明机械臂没有与can模块连通，检查绿色端子是否紧连，拔插can模块usb，重新上电机械臂，再激活can模块，然后尝试重新启动节点
 
 - 如果打开了自动使能，尝试使能5s没有成功后，会自动退出程序
 
