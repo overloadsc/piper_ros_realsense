@@ -112,7 +112,7 @@ Note: Joint 7 directly controls both joint 7 and joint 8, so joint 8 is not invo
 1. Download the source code
 
     ```bash
-    git https://github.com/openai/mujoco-py.git
+    git clone https://github.com/openai/mujoco-py.git
     ```
 
 2. Install (This step can be done within a conda environment)

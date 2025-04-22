@@ -112,7 +112,7 @@ cd ~/.mujoco/mujoco210/bin
 1、下载源码
 
 ```bash
-git https://github.com/openai/mujoco-py.git
+git clone https://github.com/openai/mujoco-py.git
 ```
 
 2、安装(这一步可以在conda环境中进行)
