@@ -7,6 +7,7 @@ import os
 import time
 import glfw
 import subprocess
+from std_msgs.msg import Header
 from mujoco_py import MjSim, MjViewer
 from mujoco_py import GlfwContext
 from sensor_msgs.msg import JointState
@@ -16,11 +17,13 @@ from sensor_msgs.msg import JointState
 
 class Mujoco_Model():
     def __init__(self):
-        rospy.init_node("mujoco_joint_controller", anonymous=True)
-        rospy.Subscriber("/joint_states", JointState, self.joint_state_callback)
+        rospy.init_node("mujoco_piper_with_gripper_controller_node", anonymous=True)
+        rospy.Subscriber("/mujoco_joint_states_ctrl", JointState, self.joint_state_callback)
 
         # 初始化 joint_targets 字典
         self.joint_targets = {}  # ← 添加这行，防止 AttributeError
+
+        self.joint_state_pub = rospy.Publisher("/mujoco_joint_states_pub", JointState, queue_size=1,tcp_nodelay=True)
 
         package_path = subprocess.check_output('rospack find piper_description', shell=True).strip().decode('utf-8')
         model_path = os.path.join(package_path, 'mujoco_model', 'piper_description.xml')
@@ -32,9 +35,7 @@ class Mujoco_Model():
         self.sim = MjSim(model)
         self.viewer = MjViewer(self.sim)
 
-
     def joint_state_callback(self, msg):
-        """ 从 ROS /joint_states 话题获取关节角度 """
         for i, name in enumerate(msg.name):
             self.joint_targets[name] = msg.position[i]
 
@@ -51,6 +52,15 @@ class Mujoco_Model():
             self.sim.data.ctrl[actuator_id] = target_angle
         except Exception as e:
             rospy.logerr(f"Error controlling joint {joint_name}: {e}")
+
+    def publish_joint_states(self):
+            """发布当前 MuJoCo 关节状态"""
+            msg = JointState()
+            msg.header = Header()
+            msg.header.stamp = rospy.Time.now()
+            msg.name = self.sim.model.joint_names
+            msg.position = [self.sim.data.qpos[self.sim.model.get_joint_qpos_addr(j)] for j in msg.name]
+            self.joint_state_pub.publish(msg)
 
     def control_loop(self):
         """ 让 MuJoCo 机械臂跟随 ROS 关节状态 """
@@ -76,6 +86,7 @@ class Mujoco_Model():
 
             self.sim.step()
             self.viewer.render()
+            self.publish_joint_states()
             rate.sleep()
 
 def main():

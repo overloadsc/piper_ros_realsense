@@ -22,13 +22,18 @@ git checkout noetic
 |Moveit|[Moveit README](src/piper_moveit/README(EN).md)|
 |Simulation|[Simulation README](src/piper_sim/README(EN).md)|
 
-## 0 Attention to URDF Version (Zero-point distinction)
+## 0 Note the URDF version
 
-If your robotic arm, after powering on, uses the upper computer to enable return to zero, and the j2 and j3 joints are raised by 2 degrees, it is version v00 zero point, as shown in the image below:
+DH parameters before S-V1.6-3 firmware version are obtained by taking the contact limit of each joint as the initial coordinate
 
-![ ](./asserts/pictures/piper_zero.png)
+DH parameters after S-V1.6-3 firmware version offset the coordinate system of j2 and j3 by 2 degrees
 
-The old version zero point was obtained by shifting the limit positions of j2 and j3 by 2 degrees, while the current URDF files are based on the limit contact positions.
+The default URDF is now the latter
+
+|firmware version |urdf|
+|---|---|
+|current version < S-V1.6-3|`piper_description_old.urdf`|
+|current version >= S-V1.6-3|`piper_description.urdf`|
 
 ## 1 Installation Method
 
@@ -49,7 +54,14 @@ sudo apt-get install ros-noetic-eigen-stl-containers ros-noetic-geometric-shapes
 sudo apt-get install ros-noetic-moveit-resources-panda-moveit-config ros-noetic-ompl ros-noetic-warehouse-ros ros-noetic-eigenpy ros-noetic-rosparam-shortcuts
 ```
 
-## 2 Quick Start
+**NOTE**
+
+If you encounter compilation errors related to MoveIt that cannot be resolved, you can directly install the official MoveIt package by running:sudo apt install ros-$ROS_DISTRO-moveitAfter installation, either delete the `src/piper_moveit/moveit-1.1.11` directory, or create an empty file named `CATKIN_IGNORE` inside that directory to make ROS ignore this package during compilation. Then, delete the `build/` and `devel/` directories and recompile.
+
+```shell
+cd piper_ros
+catkin_make
+```
 
 ### 2.1 Enable CAN Module
 
@@ -340,7 +352,7 @@ int32 mode1
 int32 mode2
 ```
 
-## 3 Notes
+## 3 Attention
 
 - You need to activate the CAN device and set the correct baud rate before reading or controlling the robotic arm.
 - If you see:

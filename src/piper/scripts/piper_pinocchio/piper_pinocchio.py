@@ -3,7 +3,11 @@ import meshcat.geometry as mg
 import numpy as np
 import pinocchio as pin
 import time
-
+try:
+    import termios
+    import tty
+except ImportError:
+    import msvcrt
 import rospy
 from pinocchio import casadi as cpin
 from pinocchio.robot_wrapper import RobotWrapper
@@ -11,12 +15,13 @@ from pinocchio.visualize import MeshcatVisualizer
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
 import os
 import sys
-import cv2
 import threading
 from piper_control import PIPER
 from piper_msgs.msg import PosCmd
 
 piper_control = PIPER()
+
+exit_flag = False
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -26,8 +31,13 @@ sys.path.append(parent_dir)
 class Arm_IK:
     def __init__(self):
         np.set_printoptions(precision=5, suppress=True, linewidth=200)
-
-        urdf_path = '/home/agilex/piper_ws/src/piper_description/urdf/piper_description.urdf'
+        cur_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        last_path = os.path.dirname(current_dir)
+        last_path = os.path.dirname(last_path)
+        last_path = os.path.dirname(last_path)
+        urdf_dir = os.path.join(last_path, 'piper_description/urdf/piper_description.urdf')
+        # urdf_path = '/home/agilex/piper_ws/src/piper_description/urdf/piper_description.urdf'
+        urdf_path = urdf_dir
     
         self.robot = pin.RobotWrapper.BuildFromURDF(urdf_path)
 
@@ -40,7 +50,8 @@ class Arm_IK:
             reference_configuration=np.array([0] * self.robot.model.nq),
         )
 
-        q = quaternion_from_euler(0, -1.57, -1.57)
+        # q = quaternion_from_euler(0, -1.57, -1.57)
+        q = quaternion_from_euler(0, 0, 0)
         self.reduced_robot.model.addFrame(
             pin.Frame('ee',
                       self.reduced_robot.model.getJointId('joint6'),
@@ -204,11 +215,12 @@ class Arm_IK:
 
     def get_ik_solution(self, x,y,z,roll,pitch,yaw):
         
-        q = quaternion_from_euler(roll, pitch, yaw)
+        q = quaternion_from_euler(roll, pitch, yaw, axes='rzyx')
         target = pin.SE3(
             pin.Quaternion(q[3], q[0], q[1], q[2]),
             np.array([x, y, z]),
         )
+        print(target)
         sol_q, tau_ff, get_result = self.ik_fun(target.homogeneous,0)
         # print("result:", sol_q)
         
@@ -224,7 +236,7 @@ class C_PiperIK():
         self.arm_ik = Arm_IK()
         
         # 启动订阅线程
-        sub_pos_th = threading.Thread(target=self.SubPosThread)
+        sub_pos_th = threading.Thread(target=self.SubPosThread, daemon=True)
         sub_pos_th.daemon = True
         sub_pos_th.start()
     
@@ -245,9 +257,36 @@ class C_PiperIK():
         # 调用Arm_IK类的逆解函数
         self.arm_ik.get_ik_solution(x, y, z, roll, pitch, yaw)
 
+def key_listener():
+    global exit_flag
+    if os.name == 'nt':
+        while True:
+            if msvcrt.kbhit():
+                if msvcrt.getch().lower() == b'q':
+                    exit_flag = True
+                    print("exit...")
+                    break
+    else:
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setcbreak(fd)
+            while True:
+                if sys.stdin.read(1).lower() == 'q':
+                    exit_flag = True
+                    print("exit...")
+                    break
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+
+def clear_terminal():
+    os.system("cls" if os.name == "nt" else "clear")
+
 if __name__ == "__main__":
     piper_ik = C_PiperIK()
-    while True:
-        pass
-
+    print("Press 'q' to quit")
+    listener_thread = threading.Thread(target=key_listener, daemon=True)
+    listener_thread.start()
+    while not exit_flag:
+        time.sleep(0.1)
 
