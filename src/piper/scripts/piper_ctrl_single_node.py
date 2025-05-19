@@ -8,6 +8,7 @@ import rospy
 import rosnode
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Bool
+from std_srvs.srv import SetBool, SetBoolResponse
 import time
 import threading
 import argparse
@@ -96,6 +97,7 @@ class C_PiperRosNode():
         self.stop_service = rospy.Service('stop_srv', Trigger, self.handle_stop_service)  # 创建stop服务
         self.reset_service = rospy.Service('reset_srv', Trigger, self.handle_reset_service)  # 创建reset服务
         self.go_zero_service = rospy.Service('go_zero_srv', GoZero, self.handle_go_zero_service)  # 创建reset服务
+        self.block_arm_service = rospy.Service('block_arm', SetBool, self.handle_block_arm_service)
         # joint
         self.joint_states = JointState()
         self.joint_states.name = ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6', 'gripper']
@@ -107,7 +109,7 @@ class C_PiperRosNode():
         self.piper = C_PiperInterface(can_name=self.can_port)
         self.piper.ConnectPort()
         self.piper.MotionCtrl_2(0x01, 0x01, 30,0)
-
+        self.block_ctrl_flag = False
         # 启动订阅线程
         sub_pos_th = threading.Thread(target=self.SubPosThread)
         sub_pos_th.daemon = True
@@ -292,34 +294,35 @@ class C_PiperRosNode():
         # rospy.loginfo("gripper: %f", pos_data.gripper)
         # rospy.loginfo("mode1: %d", pos_data.mode1)
         # rospy.loginfo("mode2: %d", pos_data.mode2)
-        factor = 180 / 3.1415926
-        x = round(pos_data.x*1000) * 1000
-        y = round(pos_data.y*1000) * 1000
-        z = round(pos_data.z*1000) * 1000
-        rx = round(pos_data.roll*1000*factor) 
-        ry = round(pos_data.pitch*1000*factor)
-        rz = round(pos_data.yaw*1000*factor)
-        rospy.loginfo("Received PosCmd:")
-        rospy.loginfo("x: %f", x)
-        rospy.loginfo("y: %f", y)
-        rospy.loginfo("z: %f", z)
-        rospy.loginfo("roll: %f", rx)
-        rospy.loginfo("pitch: %f", ry)
-        rospy.loginfo("yaw: %f", rz)
-        rospy.loginfo("gripper: %f", pos_data.gripper)
-        rospy.loginfo("mode1: %d", pos_data.mode1)
-        rospy.loginfo("mode2: %d", pos_data.mode2)
-        if(self.GetEnableFlag()):
-            self.piper.MotionCtrl_1(0x00, 0x00, 0x00)
-            self.piper.MotionCtrl_2(0x01, 0x00, 50)
-            self.piper.EndPoseCtrl(x, y, z, 
-                                    rx, ry, rz)
-            gripper = round(pos_data.gripper*1000*1000)
-            if(pos_data.gripper>80000): gripper = 80000
-            if(pos_data.gripper<0): gripper = 0
-            if(self.gripper_exist):
-                self.piper.GripperCtrl(abs(gripper), 1000, 0x01, 0)
-            self.piper.MotionCtrl_2(0x01, 0x00, 50)
+        if not self.block_ctrl_flag:
+            factor = 180 / 3.1415926
+            x = round(pos_data.x*1000) * 1000
+            y = round(pos_data.y*1000) * 1000
+            z = round(pos_data.z*1000) * 1000
+            rx = round(pos_data.roll*1000*factor) 
+            ry = round(pos_data.pitch*1000*factor)
+            rz = round(pos_data.yaw*1000*factor)
+            rospy.loginfo("Received PosCmd:")
+            rospy.loginfo("x: %f", x)
+            rospy.loginfo("y: %f", y)
+            rospy.loginfo("z: %f", z)
+            rospy.loginfo("roll: %f", rx)
+            rospy.loginfo("pitch: %f", ry)
+            rospy.loginfo("yaw: %f", rz)
+            rospy.loginfo("gripper: %f", pos_data.gripper)
+            rospy.loginfo("mode1: %d", pos_data.mode1)
+            rospy.loginfo("mode2: %d", pos_data.mode2)
+            if(self.GetEnableFlag()):
+                self.piper.MotionCtrl_1(0x00, 0x00, 0x00)
+                self.piper.MotionCtrl_2(0x01, 0x00, 50)
+                self.piper.EndPoseCtrl(x, y, z, 
+                                        rx, ry, rz)
+                gripper = round(pos_data.gripper*1000*1000)
+                if(pos_data.gripper>80000): gripper = 80000
+                if(pos_data.gripper<0): gripper = 0
+                if(self.gripper_exist):
+                    self.piper.GripperCtrl(abs(gripper), 1000, 0x01, 0)
+                self.piper.MotionCtrl_2(0x01, 0x00, 50)
     
     def joint_callback(self, joint_data):
         """机械臂关节角回调函数
@@ -327,67 +330,68 @@ class C_PiperRosNode():
         Args:
             joint_data (): 
         """
-        factor = 57324.840764 #1000*180/3.14
-        factor = 1000 * 180 / np.pi
-        # rospy.loginfo("Received Joint States:")
-        # rospy.loginfo("joint_0: %f", joint_data.position[0])
-        # rospy.loginfo("joint_1: %f", joint_data.position[1])
-        # rospy.loginfo("joint_2: %f", joint_data.position[2])
-        # rospy.loginfo("joint_3: %f", joint_data.position[3])
-        # rospy.loginfo("joint_4: %f", joint_data.position[4])
-        # rospy.loginfo("joint_5: %f", joint_data.position[5])
-        # rospy.loginfo("joint_6: %f", joint_data.position[6])
-        # print(joint_data.position)
-        joint_0 = round(joint_data.position[0]*factor)
-        joint_1 = round(joint_data.position[1]*factor)
-        joint_2 = round(joint_data.position[2]*factor)
-        joint_3 = round(joint_data.position[3]*factor)
-        joint_4 = round(joint_data.position[4]*factor)
-        joint_5 = round(joint_data.position[5]*factor)
-        if(len(joint_data.position) >= 7):
-            joint_6 = round(joint_data.position[6]*1000*1000)
-            joint_6 = joint_6 * self.gripper_val_mutiple
-            if(joint_6>80000): joint_6 = 80000
-            if(joint_6<0): joint_6 = 0
-        else: joint_6 = None
-        if(self.GetEnableFlag()):
-            # 设定电机速度
-            if(joint_data.velocity != []):
-                all_zeros = all(v == 0 for v in joint_data.velocity)
-            else: all_zeros = True
-            if(not all_zeros):
-                lens = len(joint_data.velocity)
-                if(lens == 7):
-                    vel_all = round(joint_data.velocity[6])
-                    if (vel_all > 100): vel_all = 100
-                    if (vel_all < 0): vel_all = 0
-                    rospy.loginfo("vel_all: %d", vel_all)
-                    self.piper.MotionCtrl_2(0x01, 0x01, vel_all)
-                # elif(lens == 7):
-                #     # 遍历速度列表
-                #     for i, velocity in enumerate(joint_data.velocity):
-                #         if velocity > 0:  # 如果速度是正数
-                #             # 设置指定位置的关节速度为这个正数速度
-                #             # self.piper.SearchMotorMaxAngleSpdAccLimit(i+1,0x01)
-                #             # self.piper.MotorAngleLimitMaxSpdSet(i+1)
+        if not self.block_ctrl_flag:
+            factor = 57324.840764 #1000*180/3.14
+            factor = 1000 * 180 / np.pi
+            # rospy.loginfo("Received Joint States:")
+            # rospy.loginfo("joint_0: %f", joint_data.position[0])
+            # rospy.loginfo("joint_1: %f", joint_data.position[1])
+            # rospy.loginfo("joint_2: %f", joint_data.position[2])
+            # rospy.loginfo("joint_3: %f", joint_data.position[3])
+            # rospy.loginfo("joint_4: %f", joint_data.position[4])
+            # rospy.loginfo("joint_5: %f", joint_data.position[5])
+            # rospy.loginfo("joint_6: %f", joint_data.position[6])
+            # print(joint_data.position)
+            joint_0 = round(joint_data.position[0]*factor)
+            joint_1 = round(joint_data.position[1]*factor)
+            joint_2 = round(joint_data.position[2]*factor)
+            joint_3 = round(joint_data.position[3]*factor)
+            joint_4 = round(joint_data.position[4]*factor)
+            joint_5 = round(joint_data.position[5]*factor)
+            if(len(joint_data.position) >= 7):
+                joint_6 = round(joint_data.position[6]*1000*1000)
+                joint_6 = joint_6 * self.gripper_val_mutiple
+                if(joint_6>80000): joint_6 = 80000
+                if(joint_6<0): joint_6 = 0
+            else: joint_6 = None
+            if(self.GetEnableFlag()):
+                # 设定电机速度
+                if(joint_data.velocity != []):
+                    all_zeros = all(v == 0 for v in joint_data.velocity)
+                else: all_zeros = True
+                if(not all_zeros):
+                    lens = len(joint_data.velocity)
+                    if(lens == 7):
+                        vel_all = round(joint_data.velocity[6])
+                        if (vel_all > 100): vel_all = 100
+                        if (vel_all < 0): vel_all = 0
+                        rospy.loginfo("vel_all: %d", vel_all)
+                        self.piper.MotionCtrl_2(0x01, 0x01, vel_all)
+                    # elif(lens == 7):
+                    #     # 遍历速度列表
+                    #     for i, velocity in enumerate(joint_data.velocity):
+                    #         if velocity > 0:  # 如果速度是正数
+                    #             # 设置指定位置的关节速度为这个正数速度
+                    #             # self.piper.SearchMotorMaxAngleSpdAccLimit(i+1,0x01)
+                    #             # self.piper.MotorAngleLimitMaxSpdSet(i+1)
+                    else: self.piper.MotionCtrl_2(0x01, 0x01, 50,0)
                 else: self.piper.MotionCtrl_2(0x01, 0x01, 50,0)
-            else: self.piper.MotionCtrl_2(0x01, 0x01, 50,0)
-            
-            # 给定关节角位置
-            self.piper.JointCtrl(joint_0, joint_1, joint_2, 
-                                    joint_3, joint_4, joint_5)
-            # 如果末端夹爪存在，则发送末端夹爪控制
-            if(self.gripper_exist and joint_6 is not None):
-                if abs(joint_6)<200:
-                    joint_6=0
-                if(len(joint_data.effort) >= 7):
-                    gripper_effort = joint_data.effort[6]
-                    gripper_effort = max(0.5, min(gripper_effort, 3))
-                    # rospy.loginfo("gripper_effort: %f", gripper_effort)
-                    gripper_effort = round(gripper_effort*1000)
-                    self.piper.GripperCtrl(abs(joint_6), gripper_effort, 0x01, 0)
-                # 默认1N
-                else: self.piper.GripperCtrl(abs(joint_6), 1000, 0x01, 0)
+                
+                # 给定关节角位置
+                self.piper.JointCtrl(joint_0, joint_1, joint_2, 
+                                        joint_3, joint_4, joint_5)
+                # 如果末端夹爪存在，则发送末端夹爪控制
+                if(self.gripper_exist and joint_6 is not None):
+                    if abs(joint_6)<200:
+                        joint_6=0
+                    if(len(joint_data.effort) >= 7):
+                        gripper_effort = joint_data.effort[6]
+                        gripper_effort = max(0.5, min(gripper_effort, 3))
+                        # rospy.loginfo("gripper_effort: %f", gripper_effort)
+                        gripper_effort = round(gripper_effort*1000)
+                        self.piper.GripperCtrl(abs(joint_6), gripper_effort, 0x01, 0)
+                    # 默认1N
+                    else: self.piper.GripperCtrl(abs(joint_6), 1000, 0x01, 0)
     
     def enable_callback(self, enable_flag:Bool):
         """机械臂使能回调函数
@@ -539,6 +543,21 @@ class C_PiperRosNode():
         response.status = True
         response.code = 151001
         rospy.loginfo(f"Returning GoZeroResponse: {response.status}, {response.code}")
+        return response
+
+    def handle_block_arm_service(self,req):
+        response = SetBoolResponse()
+        rospy.loginfo(f"-----------------------BLOCK_ARM---------------------------")
+        if req.data:
+            response.success = req.data
+            response.message = "You will block arm ctrl msg send"
+        else:
+            response.success = req.data
+            response.message = "You will unblock arm ctrl msg send"
+        self.block_ctrl_flag = req.data
+        rospy.loginfo(f"piper block arm .")
+        rospy.loginfo(f"Returning BlockArmResponse: {response.success}, {response.message}")
+        rospy.loginfo(f"-----------------------BLOCK_ARM---------------------------")
         return response
     
 if __name__ == '__main__':
