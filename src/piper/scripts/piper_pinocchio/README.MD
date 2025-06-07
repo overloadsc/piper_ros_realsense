@@ -5,7 +5,7 @@
 ```shell
 conda create -n tv python=3.9
 conda activate tv
-conda install pinocchio -c conda-forge
+conda install pinocchio=3.6.0 -c conda-forge
 pip install meshcat
 pip install casadi
 ```
