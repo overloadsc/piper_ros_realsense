@@ -217,7 +217,7 @@
       <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
     </inertial>
     <visual>
-      <origin rpy="1.57 0 1.57" xyz="0 0 0.01"/>
+      <origin rpy="1.57 0 1.57" xyz="0.014 0 0.0"/>
       <geometry>
         <mesh filename="package://piper_description/meshes/d435.dae"/>
       </geometry>
